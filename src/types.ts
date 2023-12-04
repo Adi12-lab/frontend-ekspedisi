@@ -3,14 +3,37 @@ type Gudang = {
     nama: string,
     alamat: string
 }
+type SelectedGudang = {
+    gudang?: Gudang,
+    operation?:'edit' | 'delete' | null
+}
 
 type Notify = {
     type: null |'success' | 'error',
     message: string
 }
+type Pengirim = {
+    id?: string,
+    nama: string,
+    email: string,
+    telepon: string,
+    alamat: string
+}
 
-type SelectedGudang = {
-    gudang?: Gudang,
+type SelectedPengirim = {
+    pengirim?: Pengirim,
     operation?:'edit' | 'delete' | null
 }
-export type {Gudang, Notify, SelectedGudang}
+
+type Pengiriman = {
+    resi: string,
+        
+}
+
+export type {
+    Gudang, 
+    SelectedGudang,
+    Pengirim,
+    SelectedPengirim,
+    Notify, 
+}
