@@ -6,6 +6,7 @@ const Home = lazy(() => import("./pages/Home"));
 const Gudang = lazy(() => import("./pages/Gudang"));
 const Pengirim = lazy(() => import("./pages/Pengirim"));
 const Pengiriman = lazy(() => import("./pages/Pengiriman"));
+const DetailPengirimanEdit = lazy(() => import("./pages/DetailPengirimanEdit"));
 function App() {
   return (
     <>
@@ -38,13 +39,21 @@ function App() {
               }
             />
             <Route
-              path="pengiriman"
-              element={
-                <Suspense fallback={<Loader />}>
-                  <Pengiriman />
-                </Suspense>
-              }
-            />
+                path="pengiriman"
+                element={
+                  <Suspense fallback={<Loader />}>
+                    <Pengiriman />
+                  </Suspense>
+                }
+              />
+            <Route
+                path="pengiriman/:resi"
+                element={
+                  <Suspense fallback={<Loader />}>
+                    <DetailPengirimanEdit />
+                  </Suspense>
+                }
+              />
           </Route>
         </Routes>
       </BrowserRouter>

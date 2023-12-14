@@ -25,15 +25,45 @@ type SelectedPengirim = {
     operation?:'edit' | 'delete' | null
 }
 
+type StatusPengiriman = "TERKIRIM" | "DALAM_PENGIRIMAN" | "BELUM_DIANGKUT" | "DIBATALKAN";
+
 type Pengiriman = {
-    resi: string,
-        
+    resi?: string,
+    nama_barang: string,
+    kuantitas: number,
+    berat: number,
+    biaya: number,
+    status: StatusPengiriman,
+    keterangan: string,
+    bukti_pengiriman?: string
+    pengirim: Pengirim
 }
 
+type SelectedPengiriman = {
+    pengiriman?: Pengiriman,
+    operation?:'edit' | 'delete' | null
+}
+
+type DetailPengiriman = {
+    id: string,
+    pengiriman?: Pengiriman,
+    gudang: Gudang,
+    tanggal_sampai: Date
+}
+
+type SelectedDetailPengiriman = {
+    detailPengiriman?: DetailPengiriman,
+    operation?:'edit' | 'delete' | null
+}
 export type {
     Gudang, 
     SelectedGudang,
     Pengirim,
     SelectedPengirim,
+    Pengiriman,
+    StatusPengiriman,
+    SelectedPengiriman,
     Notify, 
+    DetailPengiriman,
+    SelectedDetailPengiriman
 }
