@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Loader2, PlusSquare } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { id } from "date-fns/locale";
+import { parseISO } from "date-fns";
 
 import type { DetailPengiriman, Notify } from "@/types";
 import {
@@ -9,29 +11,35 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ComboGudang } from "@/components/gudang/ComboGudang";
 import ServiceDetailPengiriman from "@/actions/detail-pengiriman";
 import { Calendar } from "../ui/calendar";
 import { Label } from "@/components/ui/label";
+import format from "date-fns/format";
 import { Textarea } from "../ui/textarea";
 
-export default function AddDetailPengiriman({
-  resi,
+export default function EditDetailPengiriman({
+  open,
+  data,
+  resi, //dibutuhkan, karena setiap detail pengiriman memiliki resi
   setRefresh,
   setNotify,
+  setOpen,
 }: {
+  open: boolean;
+  data: DetailPengiriman;
   resi: string;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setRefresh: (refresh: boolean) => void;
   setNotify: (notify: Notify) => void;
 }) {
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
   const [tanggalSampai, setTanggalSampai] = useState<Date | undefined>(
     new Date()
   );
+  const [activeMonth, setActiveMonth] = useState<Date>();
   const [idGudang, setIdGudang] = useState("");
   const {
     handleSubmit,
@@ -39,44 +47,65 @@ export default function AddDetailPengiriman({
     setValue,
     formState: { errors },
     reset,
-    clearErrors
-  } = useForm<DetailPengiriman>({
-    defaultValues: {
-      pengiriman: {
-        resi
-      }
+  } = useForm<DetailPengiriman>({defaultValues: {
+    pengiriman: {
+      resi
     }
-  });
+  }});
 
   const onSubmit: SubmitHandler<DetailPengiriman> = async (data) => {
-    if (resi) {
-      console.log(data.pengiriman?.resi)
-      try {
-        await ServiceDetailPengiriman.createDataDetailPengiriman(data);
-        setNotify({
-          type: "success",
-          message: `Detail Pengiriman berhasil ditambahkan`,
-        });
-      } catch (error) {
-        setNotify({
-          type: "error",
-          message: `DetailPengiriman gagal ditambahkan`,
-        });
-      } finally {
-        setLoading(false);
-        reset();
-        setOpen(false);
-        setRefresh(true);
-      }
+
+    try {
+        setLoading(true)
+      data.tanggal_sampai = format(new Date(data.tanggal_sampai), "y-MM-dd");
+      await ServiceDetailPengiriman.updateDataDetailPengiriman(data.id, data);
+      console.log(data);
+      setNotify({
+        type: "success",
+        message: `Detail Pengiriman berhasil diupdate`,
+      });
+    } catch (error) {
+      setNotify({
+        type: "error",
+        message: `DetailPengiriman gagal ditambahkan`,
+      });
+    } finally {
+      setLoading(false);
+      reset();
+      setOpen(false);
+      setRefresh(true);
     }
   };
 
+  useEffect(() => {
+    if (data) {
+        setValue("id", data.id)
+      if (data.gudang.id) {
+        setValue("gudang.id", data.gudang.id);
+        setIdGudang(data.gudang.id);
+      }
+      if(data.pengiriman?.resi) {
+        setValue("pengiriman.resi", data.pengiriman.resi)
+      }
+      const parsedDate = parseISO(data.tanggal_sampai.toString());
+
+      setValue("tanggal_sampai", parsedDate);
+      setTanggalSampai(parsedDate);
+      setActiveMonth(parsedDate);
+
+      setValue("keterangan", data.keterangan)
+    }
+  }, [data, setValue]);
 
   useEffect(() => {
+    if (resi) setValue("pengiriman.resi", resi);
+  }, [resi, setValue]);
+
+  useEffect(() => {
+    if (idGudang) {
       setValue("gudang.id", idGudang);
-      console.log(idGudang)
-      clearErrors("gudang.id")
-  }, [idGudang, setValue, clearErrors]);
+    }
+  }, [idGudang, setValue]);
 
   useEffect(() => {
     if (tanggalSampai) {
@@ -86,15 +115,6 @@ export default function AddDetailPengiriman({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant={"secondary"}
-          size="lg"
-          className="text-lg mt-4 float-right"
-        >
-          <PlusSquare className="w-6 h-6 me-4" /> Tambah Detail Pengiriman
-        </Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Tambahkan DetailPengiriman</DialogTitle>
@@ -108,7 +128,7 @@ export default function AddDetailPengiriman({
               type="hidden"
               {...register("gudang.id", { required: "Pilih gudang" })}
             />
-            <ComboGudang setIdGudang={setIdGudang} />
+            <ComboGudang idGudangData={idGudang} setIdGudang={setIdGudang} />
             {errors.gudang?.id && (
               <small className="block text-red-500 text-sm mt-2 ms-1">
                 {errors.gudang.id.message}
@@ -117,15 +137,12 @@ export default function AddDetailPengiriman({
           </div>
           <div>
             <Label> Pilih tanggal sampai </Label>
-            <input
-              type="hidden"
-              {...register("tanggal_sampai", {
-                required: "Pilih tanggal sampai",
-              })}
-            />
             <Calendar
               mode="single"
+              locale={id}
               selected={tanggalSampai}
+              month={activeMonth}
+              onMonthChange={setActiveMonth}
               onSelect={setTanggalSampai}
             />
             {errors.tanggal_sampai && (
@@ -134,9 +151,8 @@ export default function AddDetailPengiriman({
               </small>
             )}
           </div>
-
           <div>
-            <Textarea placeholder="Keterangan" {...register("keterangan")}/>
+            <Textarea placeholder="Keterangan"{...register("keterangan")} />
           </div>
 
           <DialogFooter>

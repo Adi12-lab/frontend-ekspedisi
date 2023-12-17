@@ -12,7 +12,14 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash2, FileEdit, Map } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  MoreHorizontal,
+  Trash2,
+  FileEdit,
+  Map,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 import type {
@@ -33,6 +40,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BadgeStatusPengiriman } from "@/components/ui/badge-status-pengiriman";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -44,22 +52,23 @@ import {
 } from "@/components/ui/table";
 import EditPengiriman from "@/components/pengiriman/EditPengiriman";
 import DeletePengiriman from "@/components/pengiriman/DeletePengiriman";
+import { formatRupiah } from "@/lib/utils";
 
 type SetSelectedFunction = React.Dispatch<
   React.SetStateAction<SelectedPengiriman>
 >;
-type SetOpen= React.Dispatch<
-  React.SetStateAction<boolean>
->;
+type SetOpen = React.Dispatch<React.SetStateAction<boolean>>;
 
-function getTableColumns(setSelected: SetSelectedFunction, setOpen: SetOpen): ColumnDef<PengirimanType>[] {
+function getTableColumns(
+  setSelected: SetSelectedFunction,
+  setOpen: SetOpen
+): ColumnDef<PengirimanType>[] {
   return [
     {
       accessorKey: "status", //sebagai key
       header: "Status",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("status")}</div>
-      ),
+      cell: ({ row }) => <BadgeStatusPengiriman status={row.getValue("status")} />
+      ,
     },
     {
       accessorKey: "resi",
@@ -74,9 +83,7 @@ function getTableColumns(setSelected: SetSelectedFunction, setOpen: SetOpen): Co
       accessorKey: "nama_barang",
       header: () => <div>Nama Barang</div>,
       cell: ({ row }) => {
-        return (
-          <div className="font-medium">{row.getValue("nama_barang")}</div>
-        );
+        return <div className="font-medium">{row.getValue("nama_barang")}</div>;
       },
     },
     {
@@ -94,22 +101,14 @@ function getTableColumns(setSelected: SetSelectedFunction, setOpen: SetOpen): Co
       },
       cell: ({ row }) => {
         const biaya = parseFloat(row.getValue("biaya"));
-
-        const formatted = new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-        }).format(biaya);
-
-        return <div className="font-medium">{formatted}</div>;
+        return <div className="font-medium">{formatRupiah(biaya)}</div>;
       },
     },
     {
       accessorKey: "kuantitas",
       header: () => <div>Kuantitas</div>,
       cell: ({ row }) => {
-        return (
-          <div>{row.getValue("kuantitas")} buah</div>
-        );
+        return <div>{row.getValue("kuantitas")} buah</div>;
       },
     },
     {
@@ -118,6 +117,13 @@ function getTableColumns(setSelected: SetSelectedFunction, setOpen: SetOpen): Co
       cell: ({ row }) => {
         const pengiriman = row.original;
         return <div>{pengiriman.pengirim.nama}</div>;
+      },
+    },
+    {
+      accessorKey: "alamat_penerima", //sebagai key
+      header: "Alamat penerima",
+      cell: ({ row }) => {
+        return <div>{row.getValue("alamat_penerima")}</div>;
       },
     },
     {
@@ -144,13 +150,16 @@ function getTableColumns(setSelected: SetSelectedFunction, setOpen: SetOpen): Co
                 Salin resi
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Detail Pengirim</DropdownMenuItem>
-              <DropdownMenuItem>Detail Pengiriman</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={"/pengiriman/" + pengiriman.resi + "/details"}>
+                  Detail Pengiriman
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to={"/pengiriman/"+pengiriman.resi}>
-                <Map className="w-4 h-4 text-green-300 me-3" />
-                Track pengiriman
+                <Link to={"/pengiriman/" + pengiriman.resi + "/track"}>
+                  <Map className="w-4 h-4 text-green-300 me-3" />
+                  Track pengiriman
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -159,20 +168,20 @@ function getTableColumns(setSelected: SetSelectedFunction, setOpen: SetOpen): Co
                     pengiriman,
                     operation: "edit",
                   });
-                  setOpen(true)
+                  setOpen(true);
                 }}
               >
                 <FileEdit className="w-4 h-4 text-yellow-300 me-3" />
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem
-               onClick={() => {
-                setSelected({
-                  pengiriman,
-                  operation: "delete",
-                });
-                setOpen(true)
-              }}
+                onClick={() => {
+                  setSelected({
+                    pengiriman,
+                    operation: "delete",
+                  });
+                  setOpen(true);
+                }}
               >
                 <Trash2 className="w-4 h-4 text-red-600 me-3" />
                 Delete

@@ -63,6 +63,7 @@ export default function AddPengiriman({
     setValue("pengirim.id", idPengirim);
     clearErrors("pengirim.id");
   }, [idPengirim, setValue, clearErrors]);
+  
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -136,12 +137,12 @@ export default function AddPengiriman({
 
             <div>
               <Textarea
-                placeholder="Keterangan"
-                {...register("keterangan")}
+                placeholder="Pesan pengirim"
+                {...register("pesan")}
               ></Textarea>
-              {errors.keterangan && (
+              {errors.pesan && (
                 <small className="block text-red-500 text-sm mt-2 ms-1">
-                  {errors.keterangan.message}
+                  {errors.pesan.message}
                 </small>
               )}
             </div>
@@ -149,13 +150,13 @@ export default function AddPengiriman({
             <div>
               <Textarea
                 placeholder="Alamat"
-                {...register("pengirim.alamat", {
+                {...register("alamat_penerima", {
                   required: "Alamat penerima diperlukan",
                 })}
               ></Textarea>
-              {errors.pengirim?.alamat && (
+              {errors.alamat_penerima && (
                 <small className="block text-red-500 text-sm mt-2 ms-1">
-                  {errors.pengirim.alamat.message}
+                  {errors.alamat_penerima.message}
                 </small>
               )}
             </div>

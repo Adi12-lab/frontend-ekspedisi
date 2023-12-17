@@ -6,6 +6,9 @@ class ServicePengiriman {
     getDataPengiriman() {
         return axios.get(`${BASE_URL}/all`)
     }
+    findDataPengiriman(resi: string) {
+        return axios.get(`${BASE_URL}/find/${resi}`)
+    }
     createDataPengiriman(data: Pengiriman) {
         return axios.post(`${BASE_URL}/create`, data, {
             headers: {
@@ -13,6 +16,7 @@ class ServicePengiriman {
             }
         });
     }
+
     updateDataPengiriman(resi: string,data: Pengiriman) {
         return axios.put(`${BASE_URL}/update/${resi}`, data, {
             headers: {

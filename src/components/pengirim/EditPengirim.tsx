@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 import type { Pengirim, Notify } from "@/types";
 import {
@@ -24,90 +25,109 @@ function EditPengirim({
 }: {
   data: Pengirim;
   open: boolean;
-  setOpen: (open: boolean) => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setRefresh: (refresh: boolean) => void;
   setNotify: (notify: Notify) => void;
 }) {
-   
-    
-  const [form, setForm] = useState<Pengirim>({
-    id: '',
-    nama: '',
-    email: '',
-    telepon: '',
-    alamat: '',
-  });
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    reset,
+  } = useForm<Pengirim>();
 
-  useEffect(()=> {
-    if(data) {
-      setForm(data)
+  useEffect(() => {
+    if (data) {
+      setValue("id", data.id);
+      setValue("nama", data.nama);
+      setValue("alamat", data.alamat);
+      setValue("email", data.email);
+      setValue("telepon", data.telepon);
     }
-  } , [data])
+  }, [data, setValue]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const {name, value} = e.target
-    setForm({
-      ...form,
-      [name]: value
-    })
-   }
-
-   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async(e) => {
-    e.preventDefault();
-    if(form.id && form.nama && form.alamat) {
-      const result = await ServicePengirim.updateDataPengirim(form.id, form)
-      if(result.status === 200) {
+  const onSubmit: SubmitHandler<Pengirim> = async (data) => {
+    if (data.id) {
+      try {
+        const result = await ServicePengirim.updateDataPengirim(data.id, data);
         setNotify({
-          type: 'success',
-          message: `Pengirim ${result.data.nama} berhasil diupdate`
-        })
-      } else {
+          type: "success",
+          message: `Pengirim ${result.data.nama} berhasil diupdate`,
+        });
+      } catch (err) {
         setNotify({
-          type: 'error',
-          message: `Barang gagal diupdate`
-        })
+          type: "error",
+          message: `Barang gagal diupdate`,
+        });
+      } finally {
+        setLoading(false);
+        reset()
+        setOpen(false);
+        setRefresh(true);
       }
     }
-    setLoading(false)
-    setOpen(false)
-    setRefresh(true)
   };
+
   const [loading, setLoading] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={()=> setOpen(false)}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Pengirim</DialogTitle>
-        </DialogHeader> 
-        <form className="flex flex-col gap-y-5" onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            name="nama"
-            placeholder="Nama Pengirim"
-            onChange={handleChange}
-            value={form.nama}
-          />
-           <Input
-            type="text"
-            name="email"
-            placeholder="Email"
-            onChange={handleChange}
-            value={form.email}
-          />
+        </DialogHeader>
+        <form
+          className="flex flex-col gap-y-5"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div>
             <Input
-            type="text"
-            name="telepon"
-            placeholder="Telepon"
-            onChange={handleChange}
-            value={form.telepon}
-          />
+              type="text"
+              placeholder="Nama Pengirim"
+              {...register("nama", { required: "Nama diperlukan" })}
+            />
+            {errors.nama && (
+              <small className="block text-red-500 text-sm mt-2 ms-1">
+                {errors.nama.message}
+              </small>
+            )}
+          </div>
+          <div>
+            <Input
+              type="text"
+              placeholder="Email"
+              {...register("email", { required: "Email diperlukan" })}
+            />
+            {errors.email && (
+              <small className="block text-red-500 text-sm mt-2 ms-1">
+                {errors.email.message}
+              </small>
+            )}
+          </div>
+          <div>
+            <Input
+              type="text"
+              placeholder="Telepon"
+              {...register("telepon", { required: "No telepon diperlukan" })}
+            />
+            {errors.telepon && (
+              <small className="block text-red-500 text-sm mt-2 ms-1">
+                {errors.telepon.message}
+              </small>
+            )}
+          </div>
+          <div>
           <Textarea
-            name="alamat"
             placeholder="Alamat"
-            onChange={handleChange}
-            value={form.alamat}
+            {...register("alamat", { required: "Alamat diperlukan", minLength: {value: 5, message: "Alamat terlalu pendek"}})}
           />
+          {errors.alamat && (
+              <small className="block text-red-500 text-sm mt-2 ms-1">
+                {errors.alamat.message}
+              </small>
+            )}
+          </div>
 
           <DialogFooter>
             {loading ? (

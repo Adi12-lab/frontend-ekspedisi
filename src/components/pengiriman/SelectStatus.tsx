@@ -8,7 +8,7 @@ import {
 import { StatusPengiriman } from "@/types";
 const SelectStatus = ({status,setStatus}: {status: StatusPengiriman,setStatus: (status: StatusPengiriman) => void}) => {
   return (
-    <Select onValueChange={setStatus} defaultValue={status}>
+    <Select onValueChange={setStatus} value={status}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Status pengiriman" />
       </SelectTrigger>

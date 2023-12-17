@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
+import { storage } from "@/lib/firebase";
 import { Pengiriman, Notify, StatusPengiriman } from "@/types";
+
 import {
   Dialog,
   DialogContent,
@@ -16,6 +19,8 @@ import { ComboPengirim } from "../pengirim/ComboPengirim";
 import { Textarea } from "@/components/ui/textarea";
 import ServicePengiriman from "@/actions/pengiriman";
 import SelectStatus from "./SelectStatus";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { generateString } from "@/lib/utils";
 
 export default function EditPengiriman({
   data,
@@ -26,12 +31,13 @@ export default function EditPengiriman({
 }: {
   data: Pengiriman;
   open: boolean;
-  setOpen: (open: boolean) => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setRefresh: (refresh: boolean) => void;
   setNotify: (notify: Notify) => void;
 }) {
   const [loading, setLoading] = useState(false);
   const [idPengirim, setIdPengirim] = useState("");
+  const [image, setImage] = useState<File | string>();
   const [status, setStatus] = useState<StatusPengiriman>("BELUM_DIANGKUT");
   const {
     register,
@@ -43,10 +49,30 @@ export default function EditPengiriman({
     reset,
   } = useForm<Pengiriman>();
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { files } = e.target;
+    if (files) {
+      setImage(files[0]);
+    }
+  };
+
   const onSubmit: SubmitHandler<Pengiriman> = async (data) => {
-    if(data.resi) {
+    if (data.resi) {
       try {
-        const result = await ServicePengiriman.updateDataPengiriman(data.resi,data);
+        if (typeof image !== "string" && image) {
+          if (image) {
+            const imageRef = ref(
+              storage,
+              `${import.meta.env.VITE_FOLDER_IMAGE}/${generateString(8)}.jpg`
+            );
+            await uploadBytes(imageRef, image);
+            data.bukti_pengiriman = imageRef.fullPath;
+          }
+        }
+        const result = await ServicePengiriman.updateDataPengiriman(
+          data.resi,
+          data
+        );
         setNotify({
           type: "success",
           message: `Pengiriman ${result.data.nama_barang} berhasil diupdate`,
@@ -66,17 +92,23 @@ export default function EditPengiriman({
   };
 
   useEffect(() => {
+    const fetchImage = async (imageData: string) => {
+      const imageUrl = await getDownloadURL(ref(storage, imageData));
+      setImage(imageUrl);
+    };
     if (data) {
-      setValue("resi", data.resi)
+      setValue("resi", data.resi);
       setValue("berat", data.berat);
       setValue("biaya", data.biaya);
       setValue("bukti_pengiriman", data.bukti_pengiriman);
-      setValue("keterangan", data.keterangan);
+      setValue("pesan", data.pesan);
       setValue("kuantitas", data.kuantitas);
       setValue("nama_barang", data.nama_barang);
       setValue("status", data.status);
+      setStatus(data.status);
       setValue("pengirim.id", data.pengirim.id);
-      setValue("pengirim.alamat", data.pengirim.alamat);
+      setValue("alamat_penerima", data.alamat_penerima);
+      if (data.bukti_pengiriman) fetchImage(data.bukti_pengiriman);
       if (data.pengirim.id) setIdPengirim(data.pengirim.id);
     }
   }, [data, setValue]);
@@ -91,127 +123,154 @@ export default function EditPengiriman({
       setValue("status", status);
       clearErrors("status");
     }
-  }, [status, setError, setValue, clearErrors]);
+  }, [status, setValue, clearErrors]);
 
-  useEffect(()=> {
+
+  useEffect(() => {
     if (!status && isSubmitting) {
       setError("status", {
         message: "Status pengiriman diperlukan",
       });
     }
-  }, [isSubmitting, status, setError])
-  
+  }, [isSubmitting, status, setError]);
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        setOpen((state) => !state);
+        setImage(undefined);
+      }}
+    >
+      <DialogContent className="h-[650px] pt-9">
         <DialogHeader>
           <DialogTitle>Edit Pengiriman</DialogTitle>
         </DialogHeader>
-        <form
-          className="flex flex-col gap-y-5"
-          onSubmit={handleSubmit(onSubmit)}
-        >
-          <div>
-            <Input
-              type="text"
-              placeholder="Nama Barang"
-              {...register("nama_barang", { required: "Berat diperlukan" })}
-            />
-            {errors.nama_barang && (
-              <small className="block text-red-500 text-sm mt-2 ms-1">
-                {errors.nama_barang.message}
-              </small>
-            )}
-          </div>
-          <div>
-            <Input
-              type="number"
-              placeholder="Berat"
-              {...register("berat", { required: "Berat diperlukan" })}
-            />
-            {errors.berat && (
-              <small className="block text-red-500 text-sm mt-2 ms-1">
-                {errors.berat.message}
-              </small>
-            )}
-          </div>
-          <div>
-            <Input
-              type="number"
-              placeholder="Kuantitas"
-              {...register("kuantitas", { required: "Kuantitas diperlukan" })}
-            />
-            {errors.kuantitas && (
-              <small className="block text-red-500 text-sm mt-2 ms-1">
-                {errors.kuantitas.message}
-              </small>
-            )}
-          </div>
-          <div>
-            <Input
-              type="number"
-              placeholder="Biaya Pengiriman"
-              {...register("biaya", { required: "Biaya diperlukan" })}
-            />
-            {errors.biaya && (
-              <small className="block text-red-500 text-sm mt-2 ms-1">
-                {errors.biaya.message}
-              </small>
-            )}
-          </div>
-          <div>
-            <ComboPengirim
-              idPengirimData={idPengirim}
-              setIdPengirim={setIdPengirim}
-            />
-          </div>
+        <ScrollArea>
+          <form
+            className="flex flex-col gap-y-5 mt-2 ml-2 mr-5"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            <div>
+              <Input
+                type="text"
+                placeholder="Nama Barang"
+                {...register("nama_barang", { required: "Berat diperlukan" })}
+              />
+              {errors.nama_barang && (
+                <small className="block text-red-500 text-sm mt-2 ms-1">
+                  {errors.nama_barang.message}
+                </small>
+              )}
+            </div>
+            <div>
+              <Input
+                type="number"
+                placeholder="Berat"
+                {...register("berat", { required: "Berat diperlukan" })}
+              />
+              {errors.berat && (
+                <small className="block text-red-500 text-sm mt-2 ms-1">
+                  {errors.berat.message}
+                </small>
+              )}
+            </div>
+            <div>
+              <Input
+                type="number"
+                placeholder="Kuantitas"
+                {...register("kuantitas", { required: "Kuantitas diperlukan" })}
+              />
+              {errors.kuantitas && (
+                <small className="block text-red-500 text-sm mt-2 ms-1">
+                  {errors.kuantitas.message}
+                </small>
+              )}
+            </div>
+            <div>
+              <Input
+                type="number"
+                placeholder="Biaya Pengiriman"
+                {...register("biaya", { required: "Biaya diperlukan" })}
+              />
+              {errors.biaya && (
+                <small className="block text-red-500 text-sm mt-2 ms-1">
+                  {errors.biaya.message}
+                </small>
+              )}
+            </div>
+            <div>
+              <ComboPengirim
+                idPengirimData={idPengirim}
+                setIdPengirim={setIdPengirim}
+              />
+            </div>
 
-          <div>
-            <Textarea
-              placeholder="Keterangan"
-              {...register("keterangan")}
-            ></Textarea>
-            {errors.keterangan && (
-              <small className="block text-red-500 text-sm mt-2 ms-1">
-                {errors.keterangan.message}
-              </small>
-            )}
-          </div>
+            <div>
+              <Textarea
+                placeholder="Pesan pengirim"
+                {...register("pesan")}
+              ></Textarea>
+              {errors.pesan && (
+                <small className="block text-red-500 text-sm mt-2 ms-1">
+                  {errors.pesan.message}
+                </small>
+              )}
+            </div>
 
-          <div>
-            <Textarea
-              placeholder="Keterangan"
-              {...register("pengirim.alamat")}
-            ></Textarea>
-            {errors.pengirim?.alamat && (
-              <small className="block text-red-500 text-sm mt-2 ms-1">
-                {errors.pengirim.alamat.message}
-              </small>
-            )}
-          </div>
+            <div>
+              <Textarea
+                placeholder="Alamat penerima"
+                {...register("alamat_penerima")}
+              ></Textarea>
+              {errors.alamat_penerima && (
+                <small className="block text-red-500 text-sm mt-2 ms-1">
+                  {errors.alamat_penerima.message}
+                </small>
+              )}
+            </div>
 
-          <div>
-            <SelectStatus
-              status={status}
-              setStatus={setStatus}
-            />
-            {errors.status && (
-              <small className="block text-red-500 text-sm mt-2 ms-1">
-                {errors.status.message}
-              </small>
-            )}
-          </div>
-
-          <DialogFooter>
-            {loading ? (
-              <Button type="submit" disabled>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Menyimpan
-              </Button>
-            ) : (
-              <Button type="submit">Simpan</Button>
-            )}
-          </DialogFooter>
-        </form>
+            <div>
+              <SelectStatus status={status} setStatus={setStatus} />
+              {errors.status && (
+                <small className="block text-red-500 text-sm mt-2 ms-1">
+                  {errors.status.message}
+                </small>
+              )}
+            </div>
+            <div>
+              {image ? (
+                <img
+                  src={
+                    //jika upload gambar baru
+                    typeof image !== "string"
+                      ? URL.createObjectURL(image)
+                      : image
+                  }
+                  width={200}
+                  height={200}
+                />
+              ) : (
+                <div className="w-[200px] h-[200px] bg-slate-400"></div>
+              )}
+              <Input
+                type="file"
+                name="gambar"
+                placeholder="pilih gambar"
+                onChange={handleImageChange}
+              />
+            </div>
+            <DialogFooter>
+              {loading ? (
+                <Button type="submit" disabled>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Menyimpan
+                </Button>
+              ) : (
+                <Button type="submit">Simpan</Button>
+              )}
+            </DialogFooter>
+          </form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

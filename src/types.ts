@@ -34,7 +34,8 @@ type Pengiriman = {
     berat: number,
     biaya: number,
     status: StatusPengiriman,
-    keterangan: string,
+    pesan?: string,
+    alamat_penerima: string,
     bukti_pengiriman?: string
     pengirim: Pengirim
 }
@@ -48,7 +49,8 @@ type DetailPengiriman = {
     id: string,
     pengiriman?: Pengiriman,
     gudang: Gudang,
-    tanggal_sampai: Date
+    tanggal_sampai: Date | string,
+    keterangan?: string
 }
 
 type SelectedDetailPengiriman = {
