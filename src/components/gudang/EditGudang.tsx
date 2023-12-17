@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Loader2 } from "lucide-react";
+
+import { UserContext } from "@/App";
 
 import type { Gudang, Notify } from "@/types";
 import {
@@ -11,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 import ServiceGudang from "../../actions/gudang";
 
@@ -27,56 +30,59 @@ function EditGudang({
   setRefresh: (refresh: boolean) => void;
   setNotify: (notify: Notify) => void;
 }) {
-   
-    
+  const {
+    userAuth: { accessToken},
+  } = useContext(UserContext);
   const [form, setForm] = useState<Gudang>({
-    id: '',
-    nama: '',
-    alamat: '',
+    id: "",
+    nama: "",
+    alamat: "",
   });
 
-  useEffect(()=> {
-    if(data) {
-      setForm(data)
+  useEffect(() => {
+    if (data) {
+      setForm(data);
     }
-  } , [data])
+  }, [data]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setForm({
       ...form,
-      [name]: value
-    })
-   }
+      [name]: value,
+    });
+  };
 
-   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async(e) => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    if(form.id && form.nama && form.alamat) {
-      const result = await ServiceGudang.updateDataGudang(form.id, form)
-      if(result.status === 200) {
+    if (form.id && form.nama && form.alamat) {
+      try {
+        setLoading(true)
+        const result = await ServiceGudang.updateDataGudang(form.id, form, accessToken);
         setNotify({
-          type: 'success',
-          message: `Gudang ${result.data.nama} berhasil diupdate`
-        })
-      } else {
+          type: "success",
+          message: `Gudang ${result.data.nama} berhasil diupdate`,
+        });
+      } catch (error) {
         setNotify({
-          type: 'error',
-          message: `Barang gagal diupdate`
-        })
+          type: "error",
+          message: `Barang gagal diupdate`,
+        });
+      } finally {
+        setLoading(false);
+        setOpen(false);
+        setRefresh(true);
       }
     }
-    setLoading(false)
-    setOpen(false)
-    setRefresh(true)
   };
   const [loading, setLoading] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={()=> setOpen(false)}>
+    <Dialog open={open} onOpenChange={() => setOpen(false)}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Gudang</DialogTitle>
-        </DialogHeader> 
+        </DialogHeader>
         <form className="flex flex-col gap-y-5" onSubmit={handleSubmit}>
           <Input
             type="text"
@@ -85,8 +91,7 @@ function EditGudang({
             onChange={handleChange}
             value={form.nama}
           />
-          <Input
-            type="text"
+          <Textarea
             name="alamat"
             placeholder="Alamat"
             onChange={handleChange}

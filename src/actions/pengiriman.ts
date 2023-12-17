@@ -1,31 +1,55 @@
 import axios from "axios";
 import type { Pengiriman } from "@/types";
-const BASE_URL = 'http://localhost:8080/pengiriman';
+const BASE_URL = `${import.meta.env.VITE_SERVER_URL}/pengiriman`;
 
 class ServicePengiriman {
-    getDataPengiriman() {
-        return axios.get(`${BASE_URL}/all`)
+    getDataPengiriman(accessToken: string) {
+        return axios.get(`${BASE_URL}/all`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": accessToken
+            }
+        })
     }
-    findDataPengiriman(resi: string) {
-        return axios.get(`${BASE_URL}/find/${resi}`)
+    findDataPengirimanByResi(resi: string, accessToken: string) {
+        return axios.get(`${BASE_URL}/find-by-resi/${resi}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": accessToken
+            }
+        })
     }
-    createDataPengiriman(data: Pengiriman) {
+    findDataPengirimanById(id: string, accessToken: string) {
+        return axios.get(`${BASE_URL}/find-by-id/${id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": accessToken
+            }
+        })
+    }
+    createDataPengiriman(data: Pengiriman, accessToken: string) {
         return axios.post(`${BASE_URL}/create`, data, {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                "Authorization": accessToken
             }
         });
     }
 
-    updateDataPengiriman(resi: string,data: Pengiriman) {
-        return axios.put(`${BASE_URL}/update/${resi}`, data, {
+    updateDataPengiriman(id: string,data: Pengiriman, accessToken: string) {
+        return axios.put(`${BASE_URL}/update/${id}`, data, {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                "Authorization": accessToken
             }
         });
     }
-    deleteDataPengiriman(resi: string) {
-        return axios.delete(`${BASE_URL}/delete/${resi}`)
+    deleteDataPengiriman(id: string, accessToken: string) {
+        return axios.delete(`${BASE_URL}/delete/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": accessToken
+            }})
     }
 }
 

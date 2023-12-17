@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Loader2, PlusSquare } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
-import type { DetailPengiriman, Notify } from "@/types";
+
+import type { TrackPengiriman, Notify } from "@/types";
+import { UserContext } from "@/App";
 import {
   Dialog,
   DialogContent,
@@ -13,20 +15,23 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ComboGudang } from "@/components/gudang/ComboGudang";
-import ServiceDetailPengiriman from "@/actions/detail-pengiriman";
+import ServiceTrackPengiriman from "@/actions/track-pengiriman";
 import { Calendar } from "../ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "../ui/textarea";
 
-export default function AddDetailPengiriman({
-  resi,
+export default function TrackPengiriman({
+  idPengiriman,
   setRefresh,
   setNotify,
 }: {
-  resi: string;
+  idPengiriman: string;
   setRefresh: (refresh: boolean) => void;
   setNotify: (notify: Notify) => void;
 }) {
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [tanggalSampai, setTanggalSampai] = useState<Date | undefined>(
@@ -40,27 +45,26 @@ export default function AddDetailPengiriman({
     formState: { errors },
     reset,
     clearErrors
-  } = useForm<DetailPengiriman>({
+  } = useForm<TrackPengiriman>({
     defaultValues: {
       pengiriman: {
-        resi
+        id: idPengiriman
       }
     }
   });
 
-  const onSubmit: SubmitHandler<DetailPengiriman> = async (data) => {
-    if (resi) {
-      console.log(data.pengiriman?.resi)
+  const onSubmit: SubmitHandler<TrackPengiriman> = async (data) => {
+    if (idPengiriman) {
       try {
-        await ServiceDetailPengiriman.createDataDetailPengiriman(data);
+        await ServiceTrackPengiriman.createDataTrackPengiriman(data, accessToken);
         setNotify({
           type: "success",
-          message: `Detail Pengiriman berhasil ditambahkan`,
+          message: `Track Pengiriman berhasil ditambahkan`,
         });
       } catch (error) {
         setNotify({
           type: "error",
-          message: `DetailPengiriman gagal ditambahkan`,
+          message: `Track Pengiriman gagal ditambahkan`,
         });
       } finally {
         setLoading(false);
@@ -74,9 +78,12 @@ export default function AddDetailPengiriman({
 
   useEffect(() => {
       setValue("gudang.id", idGudang);
-      console.log(idGudang)
       clearErrors("gudang.id")
   }, [idGudang, setValue, clearErrors]);
+
+  useEffect(() => {
+    setValue("pengiriman.id", idPengiriman );
+}, [idPengiriman, setValue]);
 
   useEffect(() => {
     if (tanggalSampai) {
@@ -97,7 +104,7 @@ export default function AddDetailPengiriman({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Tambahkan DetailPengiriman</DialogTitle>
+          <DialogTitle>Tambahkan Track Pengiriman</DialogTitle>
         </DialogHeader>
         <form
           className="flex flex-col gap-y-5"

@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Loader2 } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
+
+import { UserContext } from "@/App";
 
 import type { Pengirim, Notify } from "@/types";
 import {
@@ -36,6 +38,9 @@ function EditPengirim({
     formState: { errors },
     reset,
   } = useForm<Pengirim>();
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
 
   useEffect(() => {
     if (data) {
@@ -50,7 +55,7 @@ function EditPengirim({
   const onSubmit: SubmitHandler<Pengirim> = async (data) => {
     if (data.id) {
       try {
-        const result = await ServicePengirim.updateDataPengirim(data.id, data);
+        const result = await ServicePengirim.updateDataPengirim(data.id, data, accessToken);
         setNotify({
           type: "success",
           message: `Pengirim ${result.data.nama} berhasil diupdate`,

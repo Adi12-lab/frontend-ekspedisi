@@ -1,7 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Pencil, Trash2 } from "lucide-react";
+import { Navigate } from "react-router-dom";
+
 import ServicePengirim from "../actions/pengirim";
+
+import { UserContext } from "@/App";
 
 import {
   Table,
@@ -16,8 +20,12 @@ import { Pengirim as PengirimType, Notify, SelectedPengirim } from "@/types";
 import AddPengirim from "@/components/pengirim/AddPengirim";
 import DeletePengirim from "@/components/pengirim/DeletePengirim";
 import EditPengirim from "@/components/pengirim/EditPengirim";
+import AnimationWrapper from "@/components/layout/page-animation";
 
 const Pengirim = () => {
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
   const [pengirim, setPengirim] = useState<PengirimType[]>([]);
   const [refresh, setRefresh] = useState(true);
   const [open, setOpen] = useState(false);
@@ -31,7 +39,7 @@ const Pengirim = () => {
   });
   useEffect(() => {
     const getPengirim = async () => {
-      const result = await ServicePengirim.getDataPengirim();
+      const result = await ServicePengirim.getDataPengirim(accessToken);
       setPengirim(result.data);
     };
 
@@ -44,10 +52,11 @@ const Pengirim = () => {
       }
       setRefresh(false);
     }
-  }, [refresh, notify]);
-  return (
-    <section className="mt-5">
-     
+  }, [refresh, notify, accessToken]);
+  return accessToken === null ? (
+    <Navigate to="/login" />
+  ) : (
+      <AnimationWrapper keyValue={"pengirim"}>
         <Toaster position="top-center" reverseOrder={false} />
         <div>
           <h1 className="font-bold text-3xl text-center">Daftar Pengirim</h1>
@@ -114,7 +123,7 @@ const Pengirim = () => {
         setRefresh={setRefresh}
         setNotify={setNotify}
       />
-    </section>
+    </AnimationWrapper>
   );
 };
 

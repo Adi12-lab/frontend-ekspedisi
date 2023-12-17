@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Loader2 } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { id } from "date-fns/locale";
 import { parseISO } from "date-fns";
 
-import type { DetailPengiriman, Notify } from "@/types";
+import { UserContext } from "@/App";
+
+import type { TrackPengiriman, Notify } from "@/types";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ComboGudang } from "@/components/gudang/ComboGudang";
-import ServiceDetailPengiriman from "@/actions/detail-pengiriman";
+import ServiceTrackPengiriman from "@/actions/track-pengiriman";
 import { Calendar } from "../ui/calendar";
 import { Label } from "@/components/ui/label";
 import format from "date-fns/format";
@@ -23,18 +25,21 @@ import { Textarea } from "../ui/textarea";
 export default function EditDetailPengiriman({
   open,
   data,
-  resi, //dibutuhkan, karena setiap detail pengiriman memiliki resi
+  idPengiriman, //dibutuhkan, karena setiap detail pengiriman memiliki idPengiriman
   setRefresh,
   setNotify,
   setOpen,
 }: {
   open: boolean;
-  data: DetailPengiriman;
-  resi: string;
+  data: TrackPengiriman;
+  idPengiriman: string;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setRefresh: (refresh: boolean) => void;
   setNotify: (notify: Notify) => void;
 }) {
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [tanggalSampai, setTanggalSampai] = useState<Date | undefined>(
     new Date()
@@ -47,27 +52,27 @@ export default function EditDetailPengiriman({
     setValue,
     formState: { errors },
     reset,
-  } = useForm<DetailPengiriman>({defaultValues: {
-    pengiriman: {
-      resi
-    }
-  }});
+  } = useForm<TrackPengiriman>({
+    defaultValues: {
+      pengiriman: {
+        id: idPengiriman,
+      },
+    },
+  });
 
-  const onSubmit: SubmitHandler<DetailPengiriman> = async (data) => {
-
+  const onSubmit: SubmitHandler<TrackPengiriman> = async (data) => {
     try {
-        setLoading(true)
+      setLoading(true);
       data.tanggal_sampai = format(new Date(data.tanggal_sampai), "y-MM-dd");
-      await ServiceDetailPengiriman.updateDataDetailPengiriman(data.id, data);
-      console.log(data);
+      await ServiceTrackPengiriman.updateDataTrackPengiriman(data.id, data, accessToken);
       setNotify({
         type: "success",
-        message: `Detail Pengiriman berhasil diupdate`,
+        message: `Track pengiriman berhasil diupdate`,
       });
     } catch (error) {
       setNotify({
         type: "error",
-        message: `DetailPengiriman gagal ditambahkan`,
+        message: `Track pengiriman gagal diupdate`,
       });
     } finally {
       setLoading(false);
@@ -79,13 +84,13 @@ export default function EditDetailPengiriman({
 
   useEffect(() => {
     if (data) {
-        setValue("id", data.id)
+      setValue("id", data.id);
       if (data.gudang.id) {
         setValue("gudang.id", data.gudang.id);
         setIdGudang(data.gudang.id);
       }
-      if(data.pengiriman?.resi) {
-        setValue("pengiriman.resi", data.pengiriman.resi)
+      if (data.pengiriman?.id) {
+        setValue("pengiriman.id", data.pengiriman.id);
       }
       const parsedDate = parseISO(data.tanggal_sampai.toString());
 
@@ -93,13 +98,13 @@ export default function EditDetailPengiriman({
       setTanggalSampai(parsedDate);
       setActiveMonth(parsedDate);
 
-      setValue("keterangan", data.keterangan)
+      setValue("keterangan", data.keterangan);
     }
   }, [data, setValue]);
 
   useEffect(() => {
-    if (resi) setValue("pengiriman.resi", resi);
-  }, [resi, setValue]);
+    if (idPengiriman) setValue("pengiriman.id", idPengiriman);
+  }, [idPengiriman, setValue]);
 
   useEffect(() => {
     if (idGudang) {
@@ -117,7 +122,7 @@ export default function EditDetailPengiriman({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Tambahkan DetailPengiriman</DialogTitle>
+          <DialogTitle>Edit Track Pengiriman</DialogTitle>
         </DialogHeader>
         <form
           className="flex flex-col gap-y-5"
@@ -152,7 +157,7 @@ export default function EditDetailPengiriman({
             )}
           </div>
           <div>
-            <Textarea placeholder="Keterangan"{...register("keterangan")} />
+            <Textarea placeholder="Keterangan" {...register("keterangan")} />
           </div>
 
           <DialogFooter>

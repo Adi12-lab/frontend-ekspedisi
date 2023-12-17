@@ -1,6 +1,6 @@
-import { useParams } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import { getDownloadURL, ref } from "firebase/storage";
+import { Loader2 } from "lucide-react";
 
 import { UserContext } from "@/App";
 import { TrackPengiriman as TrackPengirimanType, Pengiriman } from "@/types";
@@ -18,38 +18,40 @@ import {
   TableHead,
   TableHeader,
 } from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { ImageWithSkeleton } from "@/components/ui/image-skeleton";
 import { Separator } from "@/components/ui/separator";
 import { BadgeStatusPengiriman } from "@/components/ui/badge-status-pengiriman";
+import { Button } from "@/components/ui/button";
 
-const DetailPengiriman = () => {
-  const { resi } = useParams();
+const DetailPengirimanSearch = () => {
   const {
     userAuth: { accessToken },
   } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
   const [pengiriman, setPengiriman] = useState<Pengiriman>();
   const [trackPengiriman, setTrackPengiriman] = useState<TrackPengirimanType[]>(
     []
   );
   const [image, setImage] = useState<string>();
+  const [form, setForm] = useState({
+    resi: "",
+  });
 
-  useEffect(() => {
-    const getPengirimanAndTrack = async () => {
-      if (resi) {
-        const resultPengiriman =
-          await ServicePengiriman.findDataPengirimanByResi(resi, accessToken);
-        setPengiriman(resultPengiriman.data);
-        const resultTrackPengiriman =
-          await ServiceTrackPengiriman.getDataTrackPengirimanByResi(
-            resi,
-            accessToken
-          );
-        setTrackPengiriman(resultTrackPengiriman.data);
-      }
-    };
-
-    getPengirimanAndTrack();
-  }, [resi, accessToken]);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm({
+      ...form,
+      [name]: value,
+    });
+  };
 
   useEffect(() => {
     const fetchImage = async (imageData: string) => {
@@ -59,8 +61,67 @@ const DetailPengiriman = () => {
     if (pengiriman?.bukti_pengiriman) fetchImage(pengiriman.bukti_pengiriman);
   }, [pengiriman]);
 
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+      const resultPengiriman = await ServicePengiriman.findDataPengirimanByResi(
+        form.resi,
+        accessToken
+      );
+      const resultTrackPengiriman =
+        await ServiceTrackPengiriman.getDataTrackPengirimanByResi(
+          form.resi,
+          accessToken
+        );
+      setPengiriman(resultPengiriman.data);
+      setTrackPengiriman(resultTrackPengiriman.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
-    <section className="container">
+    <>
+      {pengiriman ? (
+        <Result pengiriman={pengiriman} trackPengiriman={trackPengiriman} image={image}/>
+      ) : (
+        <section className="container">
+          <Card className="w-[600px]">
+            <CardHeader>
+              <CardTitle>Cari barang anda</CardTitle>
+              <CardDescription>
+                Lacak setiap saat petualangan barang anda
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Input
+                  placeholder="Resi barang"
+                  name="resi"
+                  onChange={handleChange}
+                />
+                {loading ? (
+                  <Button type="submit" disabled>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Menyimpan
+                  </Button>
+                ) : (
+                  <Button type="submit">Simpan</Button>
+                )}
+              </form>
+            </CardContent>
+          </Card>
+        </section>
+      )}
+    </>
+  );
+};
+
+const Result = ({pengiriman, trackPengiriman, image}: {pengiriman: Pengiriman, trackPengiriman: TrackPengirimanType[], image?: string}) => {
+  return (
+    <>
       <h1 className="text-center font-bold text-3xl">Detail pengriman</h1>
       <div className="mt-7">
         <h2 className="font-semibold text-2xl">Rincian Pengiriman</h2>
@@ -199,8 +260,7 @@ const DetailPengiriman = () => {
       ) : (
         ""
       )}
-    </section>
+    </>
   );
 };
-
-export default DetailPengiriman;
+export default DetailPengirimanSearch;

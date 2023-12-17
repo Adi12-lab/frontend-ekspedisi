@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import {
   ColumnDef,
@@ -20,7 +20,9 @@ import {
   FileEdit,
   Map,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+
+import { UserContext } from "@/App";
 
 import type {
   Pengiriman as PengirimanType,
@@ -53,6 +55,7 @@ import {
 import EditPengiriman from "@/components/pengiriman/EditPengiriman";
 import DeletePengiriman from "@/components/pengiriman/DeletePengiriman";
 import { formatRupiah } from "@/lib/utils";
+import AnimationWrapper from "@/components/layout/page-animation";
 
 type SetSelectedFunction = React.Dispatch<
   React.SetStateAction<SelectedPengiriman>
@@ -117,13 +120,6 @@ function getTableColumns(
       cell: ({ row }) => {
         const pengiriman = row.original;
         return <div>{pengiriman.pengirim.nama}</div>;
-      },
-    },
-    {
-      accessorKey: "alamat_penerima", //sebagai key
-      header: "Alamat penerima",
-      cell: ({ row }) => {
-        return <div>{row.getValue("alamat_penerima")}</div>;
       },
     },
     {
@@ -195,6 +191,9 @@ function getTableColumns(
 }
 
 export default function Pengiriman() {
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [data, setData] = useState<PengirimanType[]>([]);
   const [selected, setSelected] = useState<SelectedPengiriman>({
@@ -232,7 +231,7 @@ export default function Pengiriman() {
 
   useEffect(() => {
     const getPengiriman = async () => {
-      const result = await ServicePengiriman.getDataPengiriman();
+      const result = await ServicePengiriman.getDataPengiriman(accessToken);
       setData(result.data);
     };
 
@@ -245,13 +244,15 @@ export default function Pengiriman() {
       }
       setRefresh(false);
     }
-  }, [refresh, notify]);
+  }, [refresh, notify, accessToken]);
 
-  return (
-    <section className="mt-5">
+  return accessToken === null ? (
+    <Navigate to="/login" />
+  ) : (
+    <AnimationWrapper keyValue={"pengiriman"}>
       <Toaster position="top-center" reverseOrder={false} />
       <div>
-        <h1 className="font-bold text-3xl text-center">Daftar Pengirim</h1>
+        <h1 className="font-bold text-3xl text-center">Daftar Pengiriman</h1>
         <AddPengiriman setRefresh={setRefresh} setNotify={setNotify} />
       </div>
       <div className="flex items-center py-4">
@@ -351,6 +352,6 @@ export default function Pengiriman() {
         setRefresh={setRefresh}
         setNotify={setNotify}
       />
-    </section>
+    </AnimationWrapper>
   );
 }

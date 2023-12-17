@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Loader2, PlusSquare } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
+
+import { UserContext } from "@/App";
 
 import type { Pengirim, Notify } from "@/types";
 import {
@@ -23,6 +25,9 @@ export default function AddPengirim({
   setRefresh: (refresh: boolean) => void;
   setNotify: (notify: Notify) => void;
 }) {
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const {
@@ -34,7 +39,7 @@ export default function AddPengirim({
 
   const onSubmit: SubmitHandler<Pengirim> = async (data) => {
     try {
-      const result = await ServicePengirim.createDataPengirim(data);
+      const result = await ServicePengirim.createDataPengirim(data, accessToken);
       setNotify({
         type: "success",
         message: `Pengirim ${result.data.nama} berhasil ditambahkan`,

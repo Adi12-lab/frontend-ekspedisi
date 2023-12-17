@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Loader2, PlusSquare } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
+
+import { UserContext } from "@/App";
 
 import type { Pengiriman, Notify } from "@/types";
 import ServicePengiriman from "@/actions/pengiriman";
@@ -26,6 +28,9 @@ export default function AddPengiriman({
   setRefresh: (refresh: boolean) => void;
   setNotify: (notify: Notify) => void;
 }) {
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [idPengirim, setIdPengirim] = useState("");
@@ -41,7 +46,7 @@ export default function AddPengiriman({
   const onSubmit: SubmitHandler<Pengiriman> = async (data) => {
     data.status = "BELUM_DIANGKUT";
     try {
-      const result = await ServicePengiriman.createDataPengiriman(data);
+      const result = await ServicePengiriman.createDataPengiriman(data, accessToken);
       setNotify({
         type: "success",
         message: `Pengiriman ${result.data.nama_barang} berhasil ditambahkan`,
@@ -55,6 +60,7 @@ export default function AddPengiriman({
       setLoading(false);
       setOpen(false);
       reset();
+      setIdPengirim('')
       setRefresh(true);
     }
   };
@@ -65,7 +71,11 @@ export default function AddPengiriman({
   }, [idPengirim, setValue, clearErrors]);
   
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={()=> {
+      setOpen(state => !state)
+      reset()
+      setIdPengirim('')
+      }}>
       <DialogTrigger asChild>
         <Button variant={"secondary"} size="lg" className="text-lg mt-4">
           <PlusSquare className="w-6 h-6 me-4" /> Tambah Pengiriman

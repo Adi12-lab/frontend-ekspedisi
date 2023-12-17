@@ -1,9 +1,27 @@
-import { Link } from "react-router-dom";
-import { Home, Warehouse, User, Truck } from 'lucide-react';
+import { useContext } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Home, Warehouse, User, Truck, LogOut } from "lucide-react";
+
+import { UserContext } from "@/App";
+import { logOutUser } from "@/actions/session";
 const Sidebar = () => {
+  const {
+    userAuth: { role },
+    setUserAuth,
+  } = useContext(UserContext);
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    setUserAuth({
+      accessToken: "",
+      email: "",
+      role: "",
+      username: "",
+    });
+    logOutUser();
+    navigate("/login");
+  };
   return (
     <div className="bg-blue-600">
-      
       <div className="sidebar fixed top-0 bottom-0 lg:left-0 p-2 w-[300px] overflow-y-auto text-center bg-gray-900">
         <div className="text-gray-100 text-xl">
           <div className="p-2.5 mt-1 flex items-center">
@@ -23,31 +41,96 @@ const Sidebar = () => {
             className="text-[15px] ml-4 w-full bg-transparent focus:outline-none"
           />
         </div>
-        <Link to={"/"} className="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white">
+        <NavLink
+          to={"/"}
+          className={({ isActive }: { isActive: boolean }) =>
+            `p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white ${
+              isActive ? "bg-blue-600" : ""
+            }`
+          }
+        >
           <Home className="w-6 h-6 text-white" />
-          <span  className="text-[15px] ml-4 text-gray-200 font-bold">Home</span>
-        </Link>
-        <Link to={"/gudang"} className="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white">
-        <Warehouse className="w-6 h-6 text-white" />
-          <span  className="text-[15px] ml-4 text-gray-200 font-bold">
+          <span className="text-[15px] ml-4 text-gray-200 font-bold">Home</span>
+        </NavLink>
+
+        <NavLink
+          to={"/gudang"}
+          className={({ isActive }: { isActive: boolean }) =>
+            `p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white ${
+              isActive ? "bg-blue-600" : ""
+            }`
+          }
+        >
+          <Warehouse className="w-6 h-6 text-white" />
+          <span className="text-[15px] ml-4 text-gray-200 font-bold">
             Gudang
           </span>
-        </Link>
-        <Link to={"/pengirim"} className="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white">
-        <User className="w-6 h-6 text-white" />
-          <span  className="text-[15px] ml-4 text-gray-200 font-bold">
-            Pengirim
+        </NavLink>
+        {role === "ROLE_USER" ? (
+          <NavLink
+            to={"/lacak"}
+            className={({ isActive }: { isActive: boolean }) =>
+              `p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white ${
+                isActive ? "bg-blue-600" : ""
+              }`
+            }
+          >
+            <Warehouse className="w-6 h-6 text-white" />
+            <span className="text-[15px] ml-4 text-gray-200 font-bold">
+              Lacak pesanan
+            </span>
+          </NavLink>
+        ) : (
+          ""
+        )}
+
+        {role === "ROLE_ADMIN" ? (
+          <NavLink
+            to={"/pengirim"}
+            className={({ isActive }: { isActive: boolean }) =>
+              `p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white ${
+                isActive ? "bg-blue-600" : ""
+              }`
+            }
+          >
+            <User className="w-6 h-6 text-white" />
+            <span className="text-[15px] ml-4 text-gray-200 font-bold">
+              Pengirim
+            </span>
+          </NavLink>
+        ) : (
+          ""
+        )}
+        {role === "ROLE_ADMIN" ? (
+          <NavLink
+            to={"/pengiriman"}
+            className={({ isActive }: { isActive: boolean }) =>
+              `p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white ${
+                isActive ? "bg-blue-600" : ""
+              }`
+            }
+          >
+            <Truck className="w-6 h-6 text-white" />
+            <span className="text-[15px] ml-4 text-gray-200 font-bold">
+              Pengiriman
+            </span>
+          </NavLink>
+        ) : (
+          ""
+        )}
+        <hr className="my-4 bg-gray-600 h-[1px]" />
+        <button
+          type="button"
+          className="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-red-500 text-white w-full"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-6 h-6 text-white" />
+          <span className="text-[15px] ml-4 text-gray-200 font-bold">
+            Logout
           </span>
-        </Link>
-        <Link to={"/pengiriman"} className="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-blue-600 text-white">
-        <Truck className="w-6 h-6 text-white" />
-          <span  className="text-[15px] ml-4 text-gray-200 font-bold">
-            Pengiriman
-          </span>
-        </Link>
+        </button>
       </div>
     </div>
-  
   );
 };
 

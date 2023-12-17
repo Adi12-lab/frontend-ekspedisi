@@ -28,7 +28,8 @@ type SelectedPengirim = {
 type StatusPengiriman = "TERKIRIM" | "DALAM_PENGIRIMAN" | "BELUM_DIANGKUT" | "DIBATALKAN";
 
 type Pengiriman = {
-    resi?: string,
+    id?: string, 
+    resi: string,
     nama_barang: string,
     kuantitas: number,
     berat: number,
@@ -45,7 +46,7 @@ type SelectedPengiriman = {
     operation?:'edit' | 'delete' | null
 }
 
-type DetailPengiriman = {
+type TrackPengiriman = {
     id: string,
     pengiriman?: Pengiriman,
     gudang: Gudang,
@@ -53,10 +54,35 @@ type DetailPengiriman = {
     keterangan?: string
 }
 
-type SelectedDetailPengiriman = {
-    detailPengiriman?: DetailPengiriman,
+type SelectedTrackPengiriman = {
+    trackPengiriman?: TrackPengiriman,
     operation?:'edit' | 'delete' | null
 }
+
+type Payload = {
+    username: string,
+    email?: string,
+    password: string,
+    role: string
+}
+enum Role {
+    ROLE_USER="ROLE_USER",
+    ROLE_ADMIN="ROLE_ADMIN"
+}
+
+type UserAuth = {
+    accessToken: string,
+    role: Role| string,
+    email: string,
+    username: string
+  };
+
+type UserContextType = {
+    userAuth: UserAuth;
+    setUserAuth: React.Dispatch<React.SetStateAction<UserAuth>>;
+  };
+
+
 export type {
     Gudang, 
     SelectedGudang,
@@ -66,6 +92,9 @@ export type {
     StatusPengiriman,
     SelectedPengiriman,
     Notify, 
-    DetailPengiriman,
-    SelectedDetailPengiriman
+    TrackPengiriman,
+    SelectedTrackPengiriman,
+    UserAuth,
+    UserContextType,
+    Payload
 }

@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Loader2 } from "lucide-react";
+
+import { UserContext } from "@/App";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -7,25 +9,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { Notify, DetailPengiriman } from "@/types";
+import type { Notify, TrackPengiriman } from "@/types";
 import { Button } from "@/components/ui/button";
-import ServiceDetailPengiriman from "../../actions/detail-pengiriman";
+import ServiceTrackPengiriman from "../../actions/track-pengiriman";
 
 
 function DeleteDetailPengiriman({ data ,open,setOpen, setRefresh, setNotify }: 
-  { data: DetailPengiriman, 
+  { data: TrackPengiriman, 
     open: boolean ,
     setOpen: (open: boolean)=> void, 
     setRefresh: (refresh: boolean) => void,
     setNotify: (notify: Notify)=> void
   }) {
+    const {
+      userAuth: { accessToken },
+    } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
 
 
   const handleDelete = async(id: string) => {
     setLoading(true)
     try {
-        await ServiceDetailPengiriman.deleteDataDetailPengiriman(id)
+        await ServiceTrackPengiriman.deleteDataTrackPengiriman(id, accessToken)
         setNotify({
           type: 'success',
           message: `Detail pengiriman berhasil dihapus`
@@ -45,10 +50,10 @@ function DeleteDetailPengiriman({ data ,open,setOpen, setRefresh, setNotify }:
     <AlertDialog open={open}>
       <AlertDialogContent>
         <AlertDialogHeader>
-            <AlertDialogTitle>Hapus Pengiriman</AlertDialogTitle>
+            <AlertDialogTitle>Hapus Track pengiriman</AlertDialogTitle>
         </AlertDialogHeader>
           <p>
-            Hapus detail pengiriman ?
+            Hapus track pengiriman ini ?
           </p>
         <AlertDialogFooter>
             <Button type="button" variant={"outline"} onClick={()=> setOpen(false)}>Batal</Button>

@@ -1,10 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
 
-import { DetailPengiriman, Notify, SelectedDetailPengiriman } from "@/types";
-import ServiceDetailPengiriman from "@/actions/detail-pengiriman";
+import {
+  TrackPengiriman as TrackPengirimanType,
+  Notify,
+  SelectedTrackPengiriman,
+  Pengiriman,
+} from "@/types";
+import ServiceTrackPengiriman from "@/actions/track-pengiriman";
+import ServicePengiriman from "@/actions/pengiriman";
+import { UserContext } from "@/App";
+
+import {formatDate} from "@/lib/utils"
 import {
   Table,
   TableBody,
@@ -14,33 +23,43 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import AddDetailPengiriman from "@/components/detail-pengiriman/AddDetailPengiriman";
-import EditDetailPengiriman from "@/components/detail-pengiriman/EditDetailPengiriman";
-import DeleteDetailPengiriman from "@/components/detail-pengiriman/DeleteDetailPengiriman";
+import AddTrackPengiriman from "@/components/track-pengiriman/AddTrackPengiriman";
+import EditTrackPengiriman from "@/components/track-pengiriman/EditTrackPengiriman";
+import DeleteTrackPengiriman from "@/components/track-pengiriman/DeleteTrackPengiriman";
+import AnimationWrapper from "@/components/layout/page-animation";
 
 const TrackPengiriman = () => {
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
   const { resi } = useParams();
-  const [detailPengiriman, setDetailPengiriman] = useState<DetailPengiriman[]>(
+  const [trackPengiriman, setTrackPengiriman] = useState<TrackPengirimanType[]>(
     []
   );
+  const [pengiriman, setPengiriman] = useState<Pengiriman>();
   const [refresh, setRefresh] = useState(true);
   const [open, setOpen] = useState(false);
   const [notify, setNotify] = useState<Notify>({
     type: null,
     message: "",
   });
-  const [selected, setSelected] = useState<SelectedDetailPengiriman>({
-    detailPengiriman: undefined,
+  const [selected, setSelected] = useState<SelectedTrackPengiriman>({
+    trackPengiriman: undefined,
     operation: null,
   });
 
   useEffect(() => {
     const getDetailPengiriman = async () => {
       if (resi) {
-        const result = await ServiceDetailPengiriman.getDataDetailPengiriman(
-          resi
-        );
-        setDetailPengiriman(result.data);
+        const result =
+          await ServiceTrackPengiriman.getDataTrackPengirimanByResi(
+            resi,
+            accessToken
+          );
+        setTrackPengiriman(result.data);
+        const resultPengiriman =
+          await ServicePengiriman.findDataPengirimanByResi(resi, accessToken);
+        setPengiriman(resultPengiriman.data);
       }
     };
 
@@ -53,18 +72,18 @@ const TrackPengiriman = () => {
       }
       setRefresh(false);
     }
-  }, [refresh, notify, resi]);
-  return (
-    <section className="mt-5">
+  }, [refresh, notify, resi, accessToken]);
+  return accessToken === null ? (<Navigate to={"/"} />) : 
+    (<AnimationWrapper keyValue={"track-pengiriman"}>
       <Toaster position="top-center" reverseOrder={false} />
       <div>
         <h1 className="font-bold text-2xl">
           Track Pengiriman {resi as string}
         </h1>
-        <AddDetailPengiriman
+        <AddTrackPengiriman
           setRefresh={setRefresh}
           setNotify={setNotify}
-          resi={resi as string}
+          idPengiriman={pengiriman?.id as string}
         />
       </div>
 
@@ -78,11 +97,11 @@ const TrackPengiriman = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {detailPengiriman &&
-            detailPengiriman.map((item, index) => (
+          {trackPengiriman &&
+            trackPengiriman.map((item, index) => (
               <TableRow key={index}>
                 <TableCell>{item.gudang.nama}</TableCell>
-                <TableCell>{item.tanggal_sampai.toString()}</TableCell>
+                <TableCell>{formatDate(item.tanggal_sampai.toString())}</TableCell>
                 <TableCell width="50%">
                   <p>{item.keterangan || "-"}</p>
                 </TableCell>
@@ -91,7 +110,7 @@ const TrackPengiriman = () => {
                     variant="warning"
                     onClick={() => {
                       setSelected({
-                        detailPengiriman: item,
+                        trackPengiriman: item,
                         operation: "edit",
                       });
                       setOpen(true);
@@ -104,7 +123,7 @@ const TrackPengiriman = () => {
                     variant="destructive"
                     onClick={() => {
                       setSelected({
-                        detailPengiriman: item,
+                        trackPengiriman: item,
                         operation: "delete",
                       });
                       setOpen(true);
@@ -118,22 +137,22 @@ const TrackPengiriman = () => {
             ))}
         </TableBody>
       </Table>
-      <EditDetailPengiriman
+      <EditTrackPengiriman
         open={selected.operation === "edit" && open}
-        resi={resi as string}
+        idPengiriman={pengiriman?.id as string}
         setOpen={setOpen}
-        data={selected.detailPengiriman as DetailPengiriman}
+        data={selected.trackPengiriman as TrackPengirimanType}
         setRefresh={setRefresh}
         setNotify={setNotify}
       />
-      <DeleteDetailPengiriman
+      <DeleteTrackPengiriman
         open={selected.operation === "delete" && open}
         setOpen={setOpen}
-        data={selected.detailPengiriman as DetailPengiriman}
+        data={selected.trackPengiriman as TrackPengirimanType}
         setRefresh={setRefresh}
         setNotify={setNotify}
       />
-    </section>
+    </AnimationWrapper>
   );
 };
 

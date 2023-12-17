@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Loader2 } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+
+import { UserContext } from "@/App";
 
 import { storage } from "@/lib/firebase";
 import { Pengiriman, Notify, StatusPengiriman } from "@/types";
@@ -15,7 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ComboPengirim } from "../pengirim/ComboPengirim";
 import { Textarea } from "@/components/ui/textarea";
 import ServicePengiriman from "@/actions/pengiriman";
 import SelectStatus from "./SelectStatus";
@@ -35,8 +36,10 @@ export default function EditPengiriman({
   setRefresh: (refresh: boolean) => void;
   setNotify: (notify: Notify) => void;
 }) {
+  const {
+    userAuth: { accessToken },
+  } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
-  const [idPengirim, setIdPengirim] = useState("");
   const [image, setImage] = useState<File | string>();
   const [status, setStatus] = useState<StatusPengiriman>("BELUM_DIANGKUT");
   const {
@@ -57,7 +60,7 @@ export default function EditPengiriman({
   };
 
   const onSubmit: SubmitHandler<Pengiriman> = async (data) => {
-    if (data.resi) {
+    if (data.id) {
       try {
         if (typeof image !== "string" && image) {
           if (image) {
@@ -70,8 +73,9 @@ export default function EditPengiriman({
           }
         }
         const result = await ServicePengiriman.updateDataPengiriman(
-          data.resi,
-          data
+          data.id,
+          data,
+          accessToken
         );
         setNotify({
           type: "success",
@@ -97,6 +101,7 @@ export default function EditPengiriman({
       setImage(imageUrl);
     };
     if (data) {
+      setValue("id", data.id)
       setValue("resi", data.resi);
       setValue("berat", data.berat);
       setValue("biaya", data.biaya);
@@ -109,14 +114,8 @@ export default function EditPengiriman({
       setValue("pengirim.id", data.pengirim.id);
       setValue("alamat_penerima", data.alamat_penerima);
       if (data.bukti_pengiriman) fetchImage(data.bukti_pengiriman);
-      if (data.pengirim.id) setIdPengirim(data.pengirim.id);
     }
   }, [data, setValue]);
-
-  useEffect(() => {
-    setValue("pengirim.id", idPengirim);
-    clearErrors("pengirim.id");
-  }, [idPengirim, setValue, clearErrors]);
 
   useEffect(() => {
     if (status) {
@@ -199,13 +198,6 @@ export default function EditPengiriman({
                 </small>
               )}
             </div>
-            <div>
-              <ComboPengirim
-                idPengirimData={idPengirim}
-                setIdPengirim={setIdPengirim}
-              />
-            </div>
-
             <div>
               <Textarea
                 placeholder="Pesan pengirim"

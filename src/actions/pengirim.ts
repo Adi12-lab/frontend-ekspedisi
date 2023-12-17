@@ -1,27 +1,39 @@
 import axios from "axios";
 import type { Pengirim } from "@/types";
-const BASE_URL = 'http://localhost:8080/pengirim';
+const BASE_URL = `${import.meta.env.VITE_SERVER_URL}/pengirim`;
 
 class ServicePengirim {
-    getDataPengirim() {
-        return axios.get(`${BASE_URL}/all`)
+    getDataPengirim(accessToken: string) {
+        return axios.get(`${BASE_URL}/all`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": accessToken
+            }
+        })
     }
-    createDataPengirim(data: Pengirim) {
+    createDataPengirim(data: Pengirim, accessToken: string) {
         return axios.post(`${BASE_URL}/create`, data, {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                "Authorization": accessToken
             }
         });
     }
-    updateDataPengirim(id: string,data: Pengirim) {
+    updateDataPengirim(id: string,data: Pengirim, accessToken: string) {
         return axios.put(`${BASE_URL}/update/${id}`, data, {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                "Authorization": accessToken,
             }
         });
     }
-    deleteDataPengirim(id: string) {
-        return axios.delete(`${BASE_URL}/delete/${id}`)
+    deleteDataPengirim(id: string, accessToken: string) {
+        return axios.delete(`${BASE_URL}/delete/${id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": accessToken
+            }
+        })
     }
 }
 

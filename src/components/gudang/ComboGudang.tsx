@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
+
+import { UserContext } from "@/App";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -19,38 +21,40 @@ import {
 import ServiceGudang from "@/actions/gudang";
 import { Gudang } from "@/types";
 
-
-export function ComboGudang(
-    {
-        idGudangData, //untuk update
-        setIdGudang}: 
-    {
-        idGudangData?: string, 
-        setIdGudang: (id: string)=> void}) {
-            
+export function ComboGudang({
+  idGudangData, //untuk update
+  setIdGudang,
+}: {
+  idGudangData?: string;
+  setIdGudang: (id: string) => void;
+}) {
+  const {
+    userAuth: { accessToken},
+  } = useContext(UserContext);
   const [open, setOpen] = useState(false);
-  
-  const [lowerName, setLowerName] = useState("")
- 
+
+  const [lowerName, setLowerName] = useState("");
+
   const [gudang, setGudang] = useState<Gudang[]>([]);
-  
+
   useEffect(() => {
     const getGudang = async () => {
-        const result = await ServiceGudang.getDataGudang();
-        setGudang(result.data);
-      
+      const result = await ServiceGudang.getDataGudang(accessToken);
+      setGudang(result.data);
     };
-    getGudang()
-  }, []);
+    getGudang();
+  }, [accessToken]);
 
-  useEffect(()=> {
-    if(idGudangData && gudang) {
-      const foundGudang = gudang.find((gudangItem) => gudangItem.id === idGudangData);
+  useEffect(() => {
+    if (idGudangData && gudang) {
+      const foundGudang = gudang.find(
+        (gudangItem) => gudangItem.id === idGudangData
+      );
       if (foundGudang) {
         setLowerName(foundGudang.nama.toLowerCase());
       }
     }
-  },[idGudangData, gudang])
+  }, [idGudangData, gudang]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -62,7 +66,9 @@ export function ComboGudang(
           className="w-[300px] justify-between"
         >
           {lowerName
-            ? gudang.find((gudangItem) => gudangItem.nama.toLowerCase() === lowerName )?.nama
+            ? gudang.find(
+                (gudangItem) => gudangItem.nama.toLowerCase() === lowerName
+              )?.nama
             : "Pilih Gudang..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -77,8 +83,8 @@ export function ComboGudang(
                 key={gudangItem.id}
                 value={gudangItem.nama.toLowerCase()}
                 onSelect={(currentValue) => {
-                  setLowerName(currentValue ===  lowerName ? "" : currentValue); //jika user meng klik lagi maka akan membatalkan
-                  setIdGudang(gudangItem.id as string)
+                  setLowerName(currentValue === lowerName ? "" : currentValue); //jika user meng klik lagi maka akan membatalkan
+                  setIdGudang(gudangItem.id as string);
                   setOpen(false);
                 }}
               >

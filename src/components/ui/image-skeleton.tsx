@@ -7,14 +7,13 @@ interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   className?: string;
 }
 
-function ImageWithSkeleton({ className, src, key,...props }: ImageProps) {
+function ImageWithSkeleton({ className, src, ...props }: ImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   return (
-    <>
+    <div>
       {!isLoaded && (
         <div
           className={cn(`animate-pulse rounded-md bg-slate-400`, className)}
-          key={key}
         />
       )}
       <img 
@@ -23,7 +22,7 @@ function ImageWithSkeleton({ className, src, key,...props }: ImageProps) {
         className={cn(`${isLoaded ? "" : "hidden"} object-cover`, className)} 
         {...props}
       />
-    </>
+    </div>
   );
 }
 

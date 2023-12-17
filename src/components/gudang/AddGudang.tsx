@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Loader2, PlusSquare } from "lucide-react";
+
+import { UserContext } from "@/App";
 
 import type { Gudang, Notify } from "@/types";
 import {
@@ -22,6 +24,9 @@ export default function AddGudang({
   setRefresh: (refresh: boolean) => void;
   setNotify: (notify: Notify) => void;
 }) {
+  const {
+    userAuth: { accessToken},
+  } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Gudang>({
@@ -43,7 +48,7 @@ export default function AddGudang({
     e.preventDefault();
     if (form.nama && form.alamat) {
       try {
-        const result = await ServiceGudang.createDataGudang(form);
+        const result = await ServiceGudang.createDataGudang(form, accessToken);
         setNotify({
           type: "success",
           message: `Gudang ${result.data.nama} berhasil ditambahkan`,
