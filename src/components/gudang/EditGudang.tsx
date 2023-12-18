@@ -55,7 +55,7 @@ function EditGudang({
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    if (form.id && form.nama && form.alamat) {
+    if (form.id && form.nama && form.alamat && accessToken) {
       try {
         setLoading(true)
         const result = await ServiceGudang.updateDataGudang(form.id, form, accessToken);

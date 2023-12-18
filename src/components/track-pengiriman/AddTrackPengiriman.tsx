@@ -2,7 +2,6 @@ import { useEffect, useState, useContext } from "react";
 import { Loader2, PlusSquare } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
-
 import type { TrackPengiriman, Notify } from "@/types";
 import { UserContext } from "@/App";
 import {
@@ -42,21 +41,20 @@ export default function TrackPengiriman({
     handleSubmit,
     register,
     setValue,
+    // getValues,
     formState: { errors },
     reset,
-    clearErrors
-  } = useForm<TrackPengiriman>({
-    defaultValues: {
-      pengiriman: {
-        id: idPengiriman
-      }
-    }
-  });
+    clearErrors,
+  } = useForm<TrackPengiriman>();
 
   const onSubmit: SubmitHandler<TrackPengiriman> = async (data) => {
-    if (idPengiriman) {
+    if (idPengiriman && accessToken) {
       try {
-        await ServiceTrackPengiriman.createDataTrackPengiriman(data, accessToken);
+        setLoading(true)
+        await ServiceTrackPengiriman.createDataTrackPengiriman(
+          data,
+          accessToken
+        );
         setNotify({
           type: "success",
           message: `Track Pengiriman berhasil ditambahkan`,
@@ -68,22 +66,30 @@ export default function TrackPengiriman({
         });
       } finally {
         setLoading(false);
-        reset();
+        reset({
+          pengiriman: {
+            id: idPengiriman,
+          },
+          keterangan: "",
+          tanggal_sampai: new Date(),
+          gudang: {
+            id: "",
+          },
+        });
         setOpen(false);
         setRefresh(true);
       }
     }
   };
 
-
   useEffect(() => {
-      setValue("gudang.id", idGudang);
-      clearErrors("gudang.id")
+    setValue("gudang.id", idGudang);
+    clearErrors("gudang.id");
   }, [idGudang, setValue, clearErrors]);
 
   useEffect(() => {
-    setValue("pengiriman.id", idPengiriman );
-}, [idPengiriman, setValue]);
+    setValue("pengiriman.id", idPengiriman);
+  }, [idPengiriman, setValue]);
 
   useEffect(() => {
     if (tanggalSampai) {
@@ -99,7 +105,7 @@ export default function TrackPengiriman({
           size="lg"
           className="text-lg mt-4 float-right"
         >
-          <PlusSquare className="w-6 h-6 me-4" /> Tambah Detail Pengiriman
+          <PlusSquare className="w-6 h-6 me-4" /> Tambah Track Pengiriman
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -143,7 +149,7 @@ export default function TrackPengiriman({
           </div>
 
           <div>
-            <Textarea placeholder="Keterangan" {...register("keterangan")}/>
+            <Textarea placeholder="Keterangan" {...register("keterangan")} />
           </div>
 
           <DialogFooter>

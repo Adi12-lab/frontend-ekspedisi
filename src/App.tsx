@@ -18,27 +18,27 @@ const DetailPengirimanSearch = lazy(()=> import("./pages/DetailPengirimanSearch"
 
 export const UserContext = createContext<UserContextType>({
   userAuth: {
-    accessToken: "",
-    role: "",
-    email: "",
-    username: "",
+    accessToken: null,
+    role: null,
+    email: null,
+    username: null,
   },
   setUserAuth: () => {},
 });
 
 function App() {
   const [userAuth, setUserAuth] = useState<UserAuth>({
-    accessToken: "",
-    role: "",
-    email: "",
-    username: "",
+    accessToken: null,
+    role: null,
+    email: null,
+    username: null,
   });
 
   useEffect(() => {
     const userInSession = lookInSession("user");
     userInSession
       ? setUserAuth(JSON.parse(userInSession))
-      : setUserAuth({ accessToken: "", role: "", email: "", username: "" });
+      : setUserAuth({ accessToken: null, role: null, email: null, username: null });
   }, []);
 
   return (
@@ -54,7 +54,7 @@ function App() {
             }
           />
           <Route
-            path="/register"
+            path="/registrasi"
             element={
               <Suspense>
                 <Register />

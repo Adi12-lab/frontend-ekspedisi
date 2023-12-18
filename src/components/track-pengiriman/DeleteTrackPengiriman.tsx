@@ -28,22 +28,25 @@ function DeleteDetailPengiriman({ data ,open,setOpen, setRefresh, setNotify }:
 
 
   const handleDelete = async(id: string) => {
-    setLoading(true)
-    try {
-        await ServiceTrackPengiriman.deleteDataTrackPengiriman(id, accessToken)
-        setNotify({
-          type: 'success',
-          message: `Detail pengiriman berhasil dihapus`
-        })
-    } catch(error) {
-        setNotify({
-            type: 'error',
-            message: `Detail pengiriman gagal dihapus`
+    if(accessToken) {
+      try {
+        setLoading(true)
+          await ServiceTrackPengiriman.deleteDataTrackPengiriman(id, accessToken)
+          setNotify({
+            type: 'success',
+            message: `Detail pengiriman berhasil dihapus`
           })
+      } catch(error) {
+          setNotify({
+              type: 'error',
+              message: `Detail pengiriman gagal dihapus`
+            })
+      } finally {
+        setOpen(false)
+        setLoading(false)
+        setRefresh(true)
+      }
     }
-    setOpen(false)
-    setLoading(false)
-    setRefresh(true)
   }
   
   return (

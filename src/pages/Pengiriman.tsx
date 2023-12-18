@@ -231,8 +231,10 @@ export default function Pengiriman() {
 
   useEffect(() => {
     const getPengiriman = async () => {
-      const result = await ServicePengiriman.getDataPengiriman(accessToken);
-      setData(result.data);
+      if(accessToken) {
+        const result = await ServicePengiriman.getDataPengiriman(accessToken);
+        setData(result.data);
+      }
     };
 
     if (refresh) {

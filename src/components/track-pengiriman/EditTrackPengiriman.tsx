@@ -61,24 +61,26 @@ export default function EditDetailPengiriman({
   });
 
   const onSubmit: SubmitHandler<TrackPengiriman> = async (data) => {
-    try {
-      setLoading(true);
-      data.tanggal_sampai = format(new Date(data.tanggal_sampai), "y-MM-dd");
-      await ServiceTrackPengiriman.updateDataTrackPengiriman(data.id, data, accessToken);
-      setNotify({
-        type: "success",
-        message: `Track pengiriman berhasil diupdate`,
-      });
-    } catch (error) {
-      setNotify({
-        type: "error",
-        message: `Track pengiriman gagal diupdate`,
-      });
-    } finally {
-      setLoading(false);
-      reset();
-      setOpen(false);
-      setRefresh(true);
+    if(accessToken) {
+      try {
+        setLoading(true);
+        data.tanggal_sampai = format(new Date(data.tanggal_sampai), "y-MM-dd");
+        await ServiceTrackPengiriman.updateDataTrackPengiriman(data.id, data, accessToken);
+        setNotify({
+          type: "success",
+          message: `Track pengiriman berhasil diupdate`,
+        });
+      } catch (error) {
+        setNotify({
+          type: "error",
+          message: `Track pengiriman gagal diupdate`,
+        });
+      } finally {
+        setLoading(false);
+        reset();
+        setOpen(false);
+        setRefresh(true);
+      }
     }
   };
 

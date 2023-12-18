@@ -39,8 +39,10 @@ export function ComboGudang({
 
   useEffect(() => {
     const getGudang = async () => {
-      const result = await ServiceGudang.getDataGudang(accessToken);
-      setGudang(result.data);
+      if(accessToken) {
+        const result = await ServiceGudang.getDataGudang(accessToken);
+        setGudang(result.data);
+      }
     };
     getGudang();
   }, [accessToken]);

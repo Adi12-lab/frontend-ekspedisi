@@ -63,24 +63,25 @@ const DetailPengirimanSearch = () => {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-
-    try {
-      setLoading(true);
-      const resultPengiriman = await ServicePengiriman.findDataPengirimanByResi(
-        form.resi,
-        accessToken
-      );
-      const resultTrackPengiriman =
-        await ServiceTrackPengiriman.getDataTrackPengirimanByResi(
+    if(accessToken) {
+      try {
+        setLoading(true);
+        const resultPengiriman = await ServicePengiriman.findDataPengirimanByResi(
           form.resi,
           accessToken
         );
-      setPengiriman(resultPengiriman.data);
-      setTrackPengiriman(resultTrackPengiriman.data);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
+        const resultTrackPengiriman =
+          await ServiceTrackPengiriman.getDataTrackPengirimanByResi(
+            form.resi,
+            accessToken
+          );
+        setPengiriman(resultPengiriman.data);
+        setTrackPengiriman(resultTrackPengiriman.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
   return (
@@ -89,7 +90,7 @@ const DetailPengirimanSearch = () => {
         <Result pengiriman={pengiriman} trackPengiriman={trackPengiriman} image={image}/>
       ) : (
         <section className="container">
-          <Card className="w-[600px]">
+          <Card className="w-[600px] shadow-lg">
             <CardHeader>
               <CardTitle>Cari barang anda</CardTitle>
               <CardDescription>
@@ -105,10 +106,10 @@ const DetailPengirimanSearch = () => {
                 />
                 {loading ? (
                   <Button type="submit" disabled>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Menyimpan
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Mencari
                   </Button>
                 ) : (
-                  <Button type="submit">Simpan</Button>
+                  <Button type="submit">Cari</Button>
                 )}
               </form>
             </CardContent>

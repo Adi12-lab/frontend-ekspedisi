@@ -37,8 +37,10 @@ export function ComboPengirim({
 
   useEffect(() => {
     const getPengirim = async () => {
-      const result = await ServicePengirim.getDataPengirim(accessToken);
-      setPengirim(result.data);
+      if(accessToken) {
+        const result = await ServicePengirim.getDataPengirim(accessToken);
+        setPengirim(result.data);
+      }
     };
     getPengirim();
   }, [accessToken]);

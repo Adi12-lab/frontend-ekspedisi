@@ -38,22 +38,25 @@ export default function AddPengirim({
   } = useForm<Pengirim>();
 
   const onSubmit: SubmitHandler<Pengirim> = async (data) => {
-    try {
-      const result = await ServicePengirim.createDataPengirim(data, accessToken);
-      setNotify({
-        type: "success",
-        message: `Pengirim ${result.data.nama} berhasil ditambahkan`,
-      });
-    } catch (error) {
-      setNotify({
-        type: "error",
-        message: `Pengirim gagal ditambahkan`,
-      });
-    } finally {
-      setLoading(false);
-      setOpen(false);
-      reset()
-      setRefresh(true);
+    if(accessToken) {
+      try {
+        setLoading(true)
+        const result = await ServicePengirim.createDataPengirim(data, accessToken);
+        setNotify({
+          type: "success",
+          message: `Pengirim ${result.data.nama} berhasil ditambahkan`,
+        });
+      } catch (error) {
+        setNotify({
+          type: "error",
+          message: `Pengirim gagal ditambahkan`,
+        });
+      } finally {
+        setLoading(false);
+        setOpen(false);
+        reset()
+        setRefresh(true);
+      }
     }
   };
 

@@ -50,7 +50,7 @@ const TrackPengiriman = () => {
 
   useEffect(() => {
     const getDetailPengiriman = async () => {
-      if (resi) {
+      if (resi && accessToken) {
         const result =
           await ServiceTrackPengiriman.getDataTrackPengirimanByResi(
             resi,

@@ -71,10 +71,10 @@ enum Role {
 }
 
 type UserAuth = {
-    accessToken: string,
-    role: Role| string,
-    email: string,
-    username: string
+    accessToken: string | null,
+    role: Role| string | null,
+    email: string | null,
+    username: string | null
   };
 
 type UserContextType = {

@@ -38,8 +38,10 @@ const Gudang = () => {
   });
   useEffect(() => {
     const getGudang = async () => {
-      const result = await ServiceGudang.getDataGudang(accessToken);
-      setGudang(result.data);
+      if(accessToken) {
+        const result = await ServiceGudang.getDataGudang(accessToken);
+        setGudang(result.data);
+      }
     };
 
     if (refresh) {

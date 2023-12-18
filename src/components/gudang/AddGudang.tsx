@@ -46,8 +46,9 @@ export default function AddGudang({
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    if (form.nama && form.alamat) {
+    if (form.nama && form.alamat && accessToken) {
       try {
+        setLoading(true)
         const result = await ServiceGudang.createDataGudang(form, accessToken);
         setNotify({
           type: "success",
@@ -58,11 +59,12 @@ export default function AddGudang({
           type: "error",
           message: `Barang gagal ditambahkan`,
         });
+      } finally {
+        setLoading(false);
+        setOpen(false);
+        setRefresh(true);
       }
     }
-    setLoading(false);
-    setOpen(false);
-    setRefresh(true);
   };
 
   return (

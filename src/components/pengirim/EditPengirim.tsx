@@ -53,8 +53,9 @@ function EditPengirim({
   }, [data, setValue]);
 
   const onSubmit: SubmitHandler<Pengirim> = async (data) => {
-    if (data.id) {
+    if (data.id && accessToken) {
       try {
+        setLoading(true)
         const result = await ServicePengirim.updateDataPengirim(data.id, data, accessToken);
         setNotify({
           type: "success",

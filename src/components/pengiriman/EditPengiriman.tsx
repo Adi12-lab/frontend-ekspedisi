@@ -60,8 +60,9 @@ export default function EditPengiriman({
   };
 
   const onSubmit: SubmitHandler<Pengiriman> = async (data) => {
-    if (data.id) {
+    if (data.id && accessToken) {
       try {
+        setLoading(true)
         if (typeof image !== "string" && image) {
           if (image) {
             const imageRef = ref(

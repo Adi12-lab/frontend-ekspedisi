@@ -44,24 +44,27 @@ export default function AddPengiriman({
   } = useForm<Pengiriman>();
 
   const onSubmit: SubmitHandler<Pengiriman> = async (data) => {
-    data.status = "BELUM_DIANGKUT";
-    try {
-      const result = await ServicePengiriman.createDataPengiriman(data, accessToken);
-      setNotify({
-        type: "success",
-        message: `Pengiriman ${result.data.nama_barang} berhasil ditambahkan`,
-      });
-    } catch (error) {
-      setNotify({
-        type: "error",
-        message: `Pengiriman gagal ditambahkan`,
-      });
-    } finally {
-      setLoading(false);
-      setOpen(false);
-      reset();
-      setIdPengirim('')
-      setRefresh(true);
+    if(accessToken) {
+      try {
+        setLoading(true)
+        data.status = "BELUM_DIANGKUT";
+        const result = await ServicePengiriman.createDataPengiriman(data, accessToken);
+        setNotify({
+          type: "success",
+          message: `Pengiriman ${result.data.nama_barang} berhasil ditambahkan`,
+        });
+      } catch (error) {
+        setNotify({
+          type: "error",
+          message: `Pengiriman gagal ditambahkan`,
+        });
+      } finally {
+        setLoading(false);
+        setOpen(false);
+        reset();
+        setIdPengirim('')
+        setRefresh(true);
+      }
     }
   };
 

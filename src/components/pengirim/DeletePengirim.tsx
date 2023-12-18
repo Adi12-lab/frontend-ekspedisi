@@ -33,22 +33,24 @@ function DeletePengirim({
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async (id: string) => {
-    try {
-      setLoading(true);
-      await ServicePengirim.deleteDataPengirim(id, accessToken);
-      setNotify({
-        type: "success",
-        message: `${data.nama} berhasil dihapus`,
-      });
-    } catch (error) {
-      setNotify({
-        type: "error",
-        message: `${data.nama} gagal dihapus`,
-      });
-    } finally {
-      setOpen(false);
-      setLoading(false);
-      setRefresh(true);
+    if(accessToken) {
+      try {
+        setLoading(true);
+        await ServicePengirim.deleteDataPengirim(id, accessToken);
+        setNotify({
+          type: "success",
+          message: `${data.nama} berhasil dihapus`,
+        });
+      } catch (error) {
+        setNotify({
+          type: "error",
+          message: `${data.nama} gagal dihapus`,
+        });
+      } finally {
+        setOpen(false);
+        setLoading(false);
+        setRefresh(true);
+      }
     }
   };
 

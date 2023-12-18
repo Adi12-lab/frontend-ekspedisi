@@ -35,7 +35,7 @@ const DetailPengiriman = () => {
 
   useEffect(() => {
     const getPengirimanAndTrack = async () => {
-      if (resi) {
+      if (resi && accessToken) {
         const resultPengiriman =
           await ServicePengiriman.findDataPengirimanByResi(resi, accessToken);
         setPengiriman(resultPengiriman.data);
