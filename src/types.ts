@@ -72,7 +72,7 @@ enum Role {
 
 type UserAuth = {
     accessToken: string | null,
-    role: Role| string | null,
+    roles: Role[]| string[] | null,
     email: string | null,
     username: string | null
   };

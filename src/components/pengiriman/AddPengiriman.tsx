@@ -44,11 +44,14 @@ export default function AddPengiriman({
   } = useForm<Pengiriman>();
 
   const onSubmit: SubmitHandler<Pengiriman> = async (data) => {
-    if(accessToken) {
+    if (accessToken) {
       try {
-        setLoading(true)
+        setLoading(true);
         data.status = "BELUM_DIANGKUT";
-        const result = await ServicePengiriman.createDataPengiriman(data, accessToken);
+        const result = await ServicePengiriman.createDataPengiriman(
+          data,
+          accessToken
+        );
         setNotify({
           type: "success",
           message: `Pengiriman ${result.data.nama_barang} berhasil ditambahkan`,
@@ -62,7 +65,7 @@ export default function AddPengiriman({
         setLoading(false);
         setOpen(false);
         reset();
-        setIdPengirim('')
+        setIdPengirim("");
         setRefresh(true);
       }
     }
@@ -72,13 +75,16 @@ export default function AddPengiriman({
     setValue("pengirim.id", idPengirim);
     clearErrors("pengirim.id");
   }, [idPengirim, setValue, clearErrors]);
-  
+
   return (
-    <Dialog open={open} onOpenChange={()=> {
-      setOpen(state => !state)
-      reset()
-      setIdPengirim('')
-      }}>
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        setOpen((state) => !state);
+        reset();
+        setIdPengirim("");
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant={"secondary"} size="lg" className="text-lg mt-4">
           <PlusSquare className="w-6 h-6 me-4" /> Tambah Pengiriman
@@ -107,7 +113,9 @@ export default function AddPengiriman({
             </div>
             <div>
               <Input
-                type="number"
+                type="type"
+                inputMode="decimal"
+                pattern="[0-9]*[.,]?[0-9]*"
                 placeholder="Berat"
                 {...register("berat", { required: "Berat diperlukan" })}
               />
@@ -142,10 +150,21 @@ export default function AddPengiriman({
               )}
             </div>
             <div>
+              <Input
+                type="hidden"
+                {...register("pengirim.id", {
+                  required: "Pengirim diperlukan",
+                })}
+              />
               <ComboPengirim
                 idPengirimData={idPengirim}
                 setIdPengirim={setIdPengirim}
               />
+              {errors.pengirim?.id && (
+                <small className="block text-red-500 text-sm mt-2 ms-1">
+                  {errors.pengirim.id.message}
+                </small>
+              )}
             </div>
 
             <div>

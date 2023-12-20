@@ -37,7 +37,7 @@ function DeletePengiriman({
         await ServicePengiriman.deleteDataPengiriman(id, accessToken);
         setNotify({
           type: "success",
-          message: `Pengiriman ${data.nama_barang} erhasil dihapus`,
+          message: `Pengiriman ${data.nama_barang} berhasil dihapus`,
         });
       } catch (error) {
         setNotify({

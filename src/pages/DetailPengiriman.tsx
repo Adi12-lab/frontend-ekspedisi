@@ -40,8 +40,8 @@ const DetailPengiriman = () => {
           await ServicePengiriman.findDataPengirimanByResi(resi, accessToken);
         setPengiriman(resultPengiriman.data);
         const resultTrackPengiriman =
-          await ServiceTrackPengiriman.getDataTrackPengirimanByResi(
-            resi,
+          await ServiceTrackPengiriman.getDataTrackPengirimanByPengirim(
+            resultPengiriman.data.id,
             accessToken
           );
         setTrackPengiriman(resultTrackPengiriman.data);
@@ -76,6 +76,13 @@ const DetailPengiriman = () => {
                   <TableCell>
                     <BadgeStatusPengiriman status={pengiriman.status} />
                   </TableCell>
+                </TableRow>
+                <TableRow className="border-0">
+                  <TableCell width="29%" className="pl-0">
+                    No Resi
+                  </TableCell>
+                  <TableCell>:</TableCell>
+                  <TableCell>{pengiriman.resi}</TableCell>
                 </TableRow>
                 <TableRow className="border-0">
                   <TableCell width="29%" className="pl-0">

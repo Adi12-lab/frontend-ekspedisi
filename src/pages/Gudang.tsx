@@ -23,7 +23,7 @@ import AnimationWrapper from "@/components/layout/page-animation";
 
 const Gudang = () => {
   const {
-    userAuth: { accessToken, role },
+    userAuth: { accessToken, roles },
   } = useContext(UserContext);
   const [gudang, setGudang] = useState<GudangType[]>([]);
   const [refresh, setRefresh] = useState(true);
@@ -65,7 +65,7 @@ const Gudang = () => {
       <Toaster position="top-center" reverseOrder={false} />
       <div>
         <h1 className="font-bold text-3xl text-center">Daftar Gudang</h1>
-        {role === "ROLE_ADMIN" ? (<AddGudang setRefresh={setRefresh} setNotify={setNotify} />) : "" }
+        {roles && roles[0] === "ROLE_ADMIN" ? (<AddGudang setRefresh={setRefresh} setNotify={setNotify} />) : "" }
       </div>
 
       <Table className="mt-5">
@@ -74,7 +74,7 @@ const Gudang = () => {
             <TableHead className="w-[100px]">Id</TableHead>
             <TableHead>Nama</TableHead>
             <TableHead>Alamat</TableHead>
-            {role === "ROLE_ADMIN" ? <TableHead>Aksi</TableHead> : ""}
+            {roles && roles[0] === "ROLE_ADMIN" ? <TableHead>Aksi</TableHead> : ""}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -84,7 +84,7 @@ const Gudang = () => {
                 <TableCell className="font-medium w-1/3">{item.id}</TableCell>
                 <TableCell>{item.nama}</TableCell>
                 <TableCell>{item.alamat}</TableCell>
-                {role === "ROLE_ADMIN" ? (
+                {roles && roles[0] === "ROLE_ADMIN" ? (
                   <TableCell className="flex space-x-3">
                     <Button
                       variant="warning"

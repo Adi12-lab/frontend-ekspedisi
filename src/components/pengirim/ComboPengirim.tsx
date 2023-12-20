@@ -21,6 +21,7 @@ import ServicePengirim from "@/actions/pengirim";
 import { Pengirim } from "@/types";
 
 export function ComboPengirim({
+  idPengirimData,
   setIdPengirim,
 }: {
   idPengirimData?: string;
@@ -31,30 +32,17 @@ export function ComboPengirim({
   } = useContext(UserContext);
   const [open, setOpen] = useState(false);
 
-  const [lowerName, setLowerName] = useState("");
-
   const [pengirim, setPengirim] = useState<Pengirim[]>([]);
 
   useEffect(() => {
     const getPengirim = async () => {
-      if(accessToken) {
+      if (accessToken) {
         const result = await ServicePengirim.getDataPengirim(accessToken);
         setPengirim(result.data);
       }
     };
     getPengirim();
   }, [accessToken]);
-
-
-  useEffect(() => {
-    if(lowerName) {
-      const foundId =
-        pengirim.find(
-          (pengirimItem) => pengirimItem.nama.toLowerCase() === lowerName
-        )?.id ?? "";
-      setIdPengirim(foundId as string);
-    }
-  }, [lowerName, pengirim, setIdPengirim]);
 
   return (
     <Popover
@@ -70,9 +58,9 @@ export function ComboPengirim({
           aria-expanded={open}
           className="w-[300px] justify-between"
         >
-          {lowerName
+          {idPengirimData
             ? pengirim.find(
-                (pengirimItem) => pengirimItem.nama.toLowerCase() === lowerName
+                (pengirimItem) => pengirimItem.id === idPengirimData
               )?.nama
             : "Pilih Pengirim..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -88,14 +76,22 @@ export function ComboPengirim({
                 key={pengirimItem.id}
                 value={pengirimItem.nama}
                 onSelect={(currentValue) => {
-                  setLowerName(currentValue === lowerName ? "" : currentValue); //jika user meng klik lagi maka akan membatalkan
+                  //setLowerName(currentValue === lowerName ? "" : currentValue); //jika user meng klik lagi maka akan membatalkan
+                  setIdPengirim(
+                    idPengirimData &&
+                      (pengirim.find(
+                        (item) => item.id === idPengirimData
+                    )?.nama.toLowerCase() === currentValue) //jika ada id pengirim dan nilai dari current lower case sama dengan yang lowercase yang diari dengan id pengirim  maka, kosongkan id pengirim
+                      ? ""
+                      : (pengirimItem.id as string)
+                  );
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    lowerName === pengirimItem.nama.toLowerCase()
+                    idPengirimData === pengirimItem.id
                       ? "opacity-100"
                       : "opacity-0"
                   )}

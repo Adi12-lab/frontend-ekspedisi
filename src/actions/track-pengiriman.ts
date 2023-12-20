@@ -3,8 +3,8 @@ import type { TrackPengiriman } from "@/types";
 const BASE_URL = `${import.meta.env.VITE_SERVER_URL}/track-pengiriman`;
 
 class ServiceTrackPengiriman {
-    getDataTrackPengirimanByResi(resi: string, accessToken: string) {
-        return axios.get(`${BASE_URL}/find-by-resi/${resi}`, {
+    getDataTrackPengirimanByPengirim(id: string, accessToken: string) {
+        return axios.get(`${BASE_URL}/find-by-pengiriman/${id}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": accessToken

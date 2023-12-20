@@ -19,7 +19,7 @@ const DetailPengirimanSearch = lazy(()=> import("./pages/DetailPengirimanSearch"
 export const UserContext = createContext<UserContextType>({
   userAuth: {
     accessToken: null,
-    role: null,
+    roles: null,
     email: null,
     username: null,
   },
@@ -29,7 +29,7 @@ export const UserContext = createContext<UserContextType>({
 function App() {
   const [userAuth, setUserAuth] = useState<UserAuth>({
     accessToken: null,
-    role: null,
+    roles: null,
     email: null,
     username: null,
   });
@@ -38,7 +38,7 @@ function App() {
     const userInSession = lookInSession("user");
     userInSession
       ? setUserAuth(JSON.parse(userInSession))
-      : setUserAuth({ accessToken: null, role: null, email: null, username: null });
+      : setUserAuth({ accessToken: null, roles: null, email: null, username: null });
   }, []);
 
   return (

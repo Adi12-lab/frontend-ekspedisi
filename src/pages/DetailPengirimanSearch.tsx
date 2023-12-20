@@ -71,8 +71,8 @@ const DetailPengirimanSearch = () => {
           accessToken
         );
         const resultTrackPengiriman =
-          await ServiceTrackPengiriman.getDataTrackPengirimanByResi(
-            form.resi,
+          await ServiceTrackPengiriman.getDataTrackPengirimanByPengirim(
+            resultPengiriman.data.id,
             accessToken
           );
         setPengiriman(resultPengiriman.data);

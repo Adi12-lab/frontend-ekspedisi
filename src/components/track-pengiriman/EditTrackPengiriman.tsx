@@ -61,11 +61,15 @@ export default function EditDetailPengiriman({
   });
 
   const onSubmit: SubmitHandler<TrackPengiriman> = async (data) => {
-    if(accessToken) {
+    if (accessToken) {
       try {
         setLoading(true);
         data.tanggal_sampai = format(new Date(data.tanggal_sampai), "y-MM-dd");
-        await ServiceTrackPengiriman.updateDataTrackPengiriman(data.id, data, accessToken);
+        await ServiceTrackPengiriman.updateDataTrackPengiriman(
+          data.id,
+          data,
+          accessToken
+        );
         setNotify({
           type: "success",
           message: `Track pengiriman berhasil diupdate`,
@@ -109,9 +113,7 @@ export default function EditDetailPengiriman({
   }, [idPengiriman, setValue]);
 
   useEffect(() => {
-    if (idGudang) {
-      setValue("gudang.id", idGudang);
-    }
+    setValue("gudang.id", idGudang); //jangan dikasih if, biarkan dia error
   }, [idGudang, setValue]);
 
   useEffect(() => {

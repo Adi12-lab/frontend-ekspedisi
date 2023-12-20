@@ -13,7 +13,7 @@ import ServiceTrackPengiriman from "@/actions/track-pengiriman";
 import ServicePengiriman from "@/actions/pengiriman";
 import { UserContext } from "@/App";
 
-import {formatDate} from "@/lib/utils"
+import { formatDate } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -51,15 +51,10 @@ const TrackPengiriman = () => {
   useEffect(() => {
     const getDetailPengiriman = async () => {
       if (resi && accessToken) {
-        const result =
-          await ServiceTrackPengiriman.getDataTrackPengirimanByResi(
-            resi,
-            accessToken
-          );
-        setTrackPengiriman(result.data);
-        const resultPengiriman =
-          await ServicePengiriman.findDataPengirimanByResi(resi, accessToken);
+        const resultPengiriman = await ServicePengiriman.findDataPengirimanByResi(resi, accessToken);
         setPengiriman(resultPengiriman.data);
+        const resultTrack = await ServiceTrackPengiriman.getDataTrackPengirimanByPengirim( resultPengiriman.data.id, accessToken);
+        setTrackPengiriman(resultTrack.data);
       }
     };
 
@@ -73,8 +68,10 @@ const TrackPengiriman = () => {
       setRefresh(false);
     }
   }, [refresh, notify, resi, accessToken]);
-  return accessToken === null ? (<Navigate to={"/"} />) : 
-    (<AnimationWrapper keyValue={"track-pengiriman"}>
+  return accessToken === null ? (
+    <Navigate to={"/"} />
+  ) : (
+    <AnimationWrapper keyValue={"track-pengiriman"}>
       <Toaster position="top-center" reverseOrder={false} />
       <div>
         <h1 className="font-bold text-2xl">
@@ -101,7 +98,9 @@ const TrackPengiriman = () => {
             trackPengiriman.map((item, index) => (
               <TableRow key={index}>
                 <TableCell>{item.gudang.nama}</TableCell>
-                <TableCell>{formatDate(item.tanggal_sampai.toString())}</TableCell>
+                <TableCell>
+                  {formatDate(item.tanggal_sampai.toString())}
+                </TableCell>
                 <TableCell width="50%">
                   <p>{item.keterangan || "-"}</p>
                 </TableCell>

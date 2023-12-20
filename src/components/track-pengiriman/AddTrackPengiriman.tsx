@@ -121,7 +121,7 @@ export default function TrackPengiriman({
               type="hidden"
               {...register("gudang.id", { required: "Pilih gudang" })}
             />
-            <ComboGudang setIdGudang={setIdGudang} />
+            <ComboGudang idGudangData={idGudang} setIdGudang={setIdGudang} />
             {errors.gudang?.id && (
               <small className="block text-red-500 text-sm mt-2 ms-1">
                 {errors.gudang.id.message}

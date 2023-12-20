@@ -6,16 +6,16 @@ import { UserContext } from "@/App";
 import { logOutUser } from "@/actions/session";
 const Sidebar = () => {
   const {
-    userAuth: { role },
+    userAuth: { roles },
     setUserAuth,
   } = useContext(UserContext);
   const navigate = useNavigate();
   const handleLogout = () => {
     setUserAuth({
-      accessToken: "",
-      email: "",
-      role: "",
-      username: "",
+      accessToken: null,
+      email: null,
+      roles: null,
+      username: null,
     });
     logOutUser();
     navigate("/login");
@@ -27,7 +27,7 @@ const Sidebar = () => {
           <div className="p-2.5 mt-1 flex items-center">
             <Home className="bi bi-app-indicator px-2 py-1 rounded-md bg-blue-600" />
             <h1 className="font-bold text-gray-200 text-[15px] ml-3">
-              Admin Ekspedisi
+              Sistem Informasi Ekspedisi
             </h1>
             <i className="bi bi-x cursor-pointer ml-28 lg:hidden"></i>
           </div>
@@ -66,7 +66,7 @@ const Sidebar = () => {
             Gudang
           </span>
         </NavLink>
-        {role === "ROLE_USER" ? (
+        {roles && roles[0] === "ROLE_USER" ? (
           <NavLink
             to={"/lacak"}
             className={({ isActive }: { isActive: boolean }) =>
@@ -84,7 +84,7 @@ const Sidebar = () => {
           ""
         )}
 
-        {role === "ROLE_ADMIN" ? (
+        {roles && roles[0] === "ROLE_ADMIN" ? (
           <NavLink
             to={"/pengirim"}
             className={({ isActive }: { isActive: boolean }) =>
@@ -101,7 +101,7 @@ const Sidebar = () => {
         ) : (
           ""
         )}
-        {role === "ROLE_ADMIN" ? (
+        {roles && roles[0] === "ROLE_ADMIN" ? (
           <NavLink
             to={"/pengiriman"}
             className={({ isActive }: { isActive: boolean }) =>
