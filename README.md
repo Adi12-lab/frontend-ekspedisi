@@ -1,30 +1,53 @@
-# React + TypeScript + Vite
+# Admin Ekspedisi
+Frontend untuk Rest API Ekspedisi menggunakan Spring Boot dan Node Js
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Teknologi
+* Typescript
+* React Js
+* React Hook Form
+* Tailwind Css
+* Storage - Firebase
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+## Cara Install
+1. Download clone
 ```
+git clone git@github.com:Adi12-lab/frontend-ekspedisi.git
+```
+- Jika anda menggunakan Spring Boot maka jalankan perintah
+  ```
+  git switch spring-boot
+  ```
+- Jika anda Mongodb Node Js
+  ```
+  git switch main
+  ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+2. Masuk Folder dan jalankan perintah
+```
+cd frontend-ekspedisi
+npm install
+```
+3. Buat file .env.local dan isi dengan :
+```
+VITE_SERVER_URL= 
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+VITE_FOLDER_IMAGE=
+```
+## Preview Image
+- **Registrasi**
+![image](https://drive.google.com/uc?export=view&id=1iNzG5yHLcRUU4KcabpgjnDSPPhX3af39)
+- **Login**
+![image](https://drive.google.com/uc?export=view&id=1pn3HDRyga6V3C2IvBsB-0C3-VMdTHqXk)
+- **Home**
+![image](https://drive.google.com/uc?export=view&id=1glE4Y5JYGl6p-H6XAuOg7W5-SUQgloIY)
+- **Gudang**
+![image](https://drive.google.com/uc?export=view&id=1EA8rF_MWpy086-tjvih90V_gyGpDIYQe)
+- **Pengiriman**
+![image](https://drive.google.com/uc?export=view&id=1c116rVUJNcVcMrjEvXjJLSMD-B2z-onI)
+- **Detail Pengiriman**
+![image](https://drive.google.com/uc?export=view&id=1v8QS5Jmsr4KArNjGBpodxC6YqgBJ6Fma)
